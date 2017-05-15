@@ -78,7 +78,7 @@ In this document, two major steps are taken to tackle it.
 First, the augmented GAP(Generalized Assignment Problem) is proposed and a general bidding strategy is correspondingly provided.
 Second, we show that DSP problem is a special case of the augmented GAP and the general bidding strategy applies.
 To the best of our knowledge, our solution is the first DSP bidding framework
-    which is derived from strict second price auction assumption
+    that is derived from strict second price auction assumption
     and is generally applicable to the multiple ads scenario with various objectives and constraints.
 Our strategy is verified through simulation and outperforms state-of-the-art strategies in real application.
 \end{abstract}
@@ -125,7 +125,7 @@ In this document, two major steps are taken to tackle it.
 First, the augmented GAP(Generalized Assignment Problem) is proposed and a general bidding strategy is correspondingly provided.
 Second, we show that DSP problem is a special case of the augmented GAP and the general bidding strategy applies.
 To the best of our knowledge, our solution is the first DSP bidding framework
-    which is derived from strict second price auction assumption and is generally applicable
+    that is derived from strict second price auction assumption and is generally applicable
     to the multiple ads scenario with various objectives and constraints.
 These are the main contributions of this document.
 
@@ -136,7 +136,7 @@ In section 3, DSP problem is formalized as an mathematical optimization problem.
 In section 4, augmented GAP is studied with proof of its strong duality and resulting strategy.
 In section 5, the theory of augmented GAP is applied to DSP problem and two numeric optimization methods are discussed.
 In section 6, we verify our strategy through simulation.
-In section 7, we deploy our strategy in real application and experimental results are analyzed.
+In section 7, we deploy our strategy in real application and experiment results are analyzed.
 In section 8, conclusions are drawn and future works are discussed.
 
 \section{Related Work}
@@ -677,81 +677,108 @@ $Case_2$          & $Ad_2$         & 2     & 0.0000      & 0.0000          & 0.0
 \end{center}
 \end{table}
 
-\newpage
-\section{Experiment}
+\section{Application}
 
-\subsection{Application}
+\subsection{Scenario}
 
-We also deploy our strategy in a real industrial DSP.
+We also deploy our strategy in a real industrial application.
 In our application, advertisers set bugdets and pay for clicks, while DSP is willing to maximize revenue under global daily ROI constraint.
 There're so many ads in our inventory that it's impossible to go through each ad before auction deadline.
 Although these budgets are quite large totally, they are relatively small on average.
 
-By utilizing an accurate CTR predictor, the problem could be transformed equivalently into PFI mode.
-And to meet the latency requirement, the whole decision process are decomposed into two stages with so called logical ad.
-Logical ad should be seen as proxy of physical ads, and binded with specific ad retrieval algorithm.
+With a well calibrated RPM predictor, the problem could be transformed equivalently into one in PFI mode.
+And to meet the latency requirement, the whole deciding process is decomposed into two stages with so called logical ad.
+Logical ad should be seen as proxy of physical ads and binded with specific ad retrieval algorithm.
 In the first stage, DSP is supposed to make decisions among just a few logical ads and respond in time.
 In the second stage, once the chosen logical ad wins the auction, physical ad is lazily retrieved with corresponding algorithm.
 
 \begin{figure}[!h]
 \centering
-\includegraphics[width=0.6\linewidth]{./LogicalAd.jpg}
-\caption{Logical Ad}
+\includegraphics[width=1.0\linewidth]{./LogicalAd.jpg}
+\caption{Real Time Bidding with Logical Ad}
 \end{figure}
 
 Our logical ads are actually based on four heterogeneous ad retrieval algorithms whose details are beyond the scope of this document.
-These algorithms are sorted by their historical performance in descending orders, that is $A_1$, $A_2$, $A_3$, and $A_4$.
-Four logical ads are constructed by stacking these algorithms in the same orders above except lifting corresponding layer to the top.
-For example, $LogicalAd_1$ is $[A_1, A_2, A_3, A_4]$ and $LogicalAd_3$ represents $[A_3, A_1, A_2, A_4]$.
+These algorithms are sorted by their historical performance in descending orders and four logical ads are constructed correspondingly.
 
 In summary, our problem could be approximately modeled as, given several logical ads with literally unlimited budget,
-    maximizing revenue under global ROI constraint in PFI mode.
-According to our theory, we have $\sF(bp) = \int_0^{bp} [(1+\alpha)\sRPM - \alpha{}ROIx]p_i(x)dx$
-    and $\sbp=\dbbp$.
-Since there is only one resource constraint, superscripts are omitted.
-As $Q_{i,j}$ is always $\alpha{}ROI$, no $p_i(x)$ is required in decision process.
-To take full advantage of that, we choose the $p_i(x)$ free optimization method,
-    that is $\dbiter$.
+    maximizing revenue under global daily ROI constraint in PFI mode.
+According to our theory, we have $\sF(bp) = \int_0^{bp} [(1+\alpha)\sRPM - \alpha{}ROIx]p_i(x)dx$ and $\sbp=\dbbp$.
+Since there is only one resource constraint, superscript $k$ is omitted.
+As $Q_{i,j}$ is always $\alpha{}ROI$, no $p_i(x)$ is required in deciding process.
+To take full advantage of that, we adopt a simplified version of the $p_i(x)$ free optimization method, that is $\dbiter$.
+
+\subsection{Experiment Groups}
 
 We compare our strategy with a variation of linear bidding strategy.
-%In \cite{M6D}, it's suguested that $bp_i=\frac{CTR_i}{CTR}Bid$.
+In \cite{M6D}, it's suguested that $bp_i=\frac{CTR_i}{CTR}Bid$ with $Bid$ set by operation team.
 In our application, it's natural to define $bp_i=\frac{ROI_i}{ROI}Bid$.
 However, unlike $CTR_i$ which is independent of $bp_i$, $ROI_i$ actually varies with it.
-As a result, we have $\liniter$,
-    which .
+Intuitively, we have $\liniter$.
 
 We also apply optimal RTB theory to our application for comparison.
-%According to \cite{WeinanZhang2014}, we model the win probability as $w(bp;c)=\frac{bp}{c+bp}$
-    and bid with $bp_i=\ortbbp$,
-    in which $c$ is fitted with historical data
-    and $\lambda$ is iteratively tuned with $\ortbiter$.
+According to \cite{WeinanZhang2014}, we model the win probability as $w(bp;c)=\frac{bp}{c+bp}$ and bid with $bp_i=\ortbbp$,
+    in which $c$ is fitted with historical data and $\lambda$ is iteratively tuned with $\ortbiter$.
 
-Four experiment groups are set as follows.
+Four experiment groups are shown in Table \ref{TableExperimentGroups}.
 The first three groups are designed to compare different strategies with single logical ad,
     while the last group is used to test our strategy with multiple logical ads.
 
+\begin{table*}
+\caption{Experiment Groups\label{TableExperimentGroups}}
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|}
 \hline
-Name     & Inventory                           & Strategy                    & $\sbp$
-    & Iteration \\
+Group    & Inventory                           & Strategy           & $\sbp$          & Iteration         & Period\\
 \hline
-$LIN$    & $\{LogicalAd_1\}$                   & Linear                      & $bp_i$
-    & $\liniter$ \\
+$LIN$    & $\{LogicalAd_1\}$                   & Linear             & $bp_i$          & $\liniter$        & 24 hours \\
 \hline
-$ORTB$   & $\{LogicalAd_1\}$                   & Optimal RTB                 & $\ortbbp$
-    & $\ortbiter$ \\
-\hline
-$DB_{s}$ & $\{LogicalAd_1\}$                   & \mr{2}{Dual Based} & \mr{2}{$\dbbp$}
-    & \mr{2}{$\dbiter$} \\
+$ORTB$   & $\{LogicalAd_1\}$                   & Optimal RTB        & $\ortbbp$       & $\ortbiter$       & \mr{3}{10 minutes} \\
+\cline{1-5}
+$DB_{s}$ & $\{LogicalAd_1\}$                   & \mr{2}{Dual Based} & \mr{2}{$\dbbp$} & \mr{2}{$\dbiter$} & \\
 \cline{1-2}
-$DB_{m}$ & $\{LogicalAd_i|i \in \{1,2,3,4\}\}$ &                             &
-    & \\ 
+$DB_{m}$ & $\{LogicalAd_i|i \in \{1,2,3,4\}\}$ &                    &                 &                   & \\
 \hline
 \end{tabular}
 \end{center}
+\end{table*}
 
-\newpage
+To eliminate potential bias, the experiment lasts for a whole ordinary week.
+Bidding opportunities are distributed to each group randomly with equal probability.
+For fairness, the same RPM predictor is shared by all groups.
+The lower bound of global daily ROI is set to 3.5.
+
+Parameters are periodically adjusted with performance data collected since last update.
+The period is set to 24 hours for the $LIN$ group due to the data sparseness
+    and 10 minutes as to the others for robustness and faster convergence.
+Note that the more frequent update introduces inexplicitly a 10 minutes ROI constraint
+    which is stricter than the daily one and might degenerate the theoratical optimal.
+
+\subsection{Results and Analysis}
+
+For each group, the daily statistics of four metrics are plotted in Figure \ref{Result},
+    namely revenue, actual ROI, number of winning impressions and revenue per winning impression.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=1.0\linewidth]{./Result.jpg}
+\caption{Experiment Results\label{Result}}
+\end{figure}
+
+The $LIN$, though with theoratical optimal intact, tends to earn less revenue than the others in practice.
+In addition, it usually violates the global daily ROI constraint seriously, thus it's an inferior strategy.
+
+Compared with the $DB_s$ who claims a linear relationship between bid price and $RPM$,
+    the $ORTB$, derived from first price auction assumption, suggests a non-linear one.
+It is biased towards the impressions with low $RPM$ and against those with high $RPM$,
+    which leads to more impressions and lower averaged quality.
+While the daily ROI constraint is satisfied by both strategies,
+    the $DB_s$ earns more revenue than the $ORTB$. As a result, the $DB_s$ is superior theoratically and practically.
+
+The $DB_m$, as an ensemble of four ad retrieval algorithms,
+    achieves the most revenue without violation of the daily ROI constraint,
+    thus becomes the best strategy.
+
 \section{Appendix}
 
 \subsection{Strong Duality Proof}
