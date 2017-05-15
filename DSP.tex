@@ -61,6 +61,9 @@
 \newcommand{\ortbiter}{\lambda^{'}=\frac{ROI}{ROI(\lambda)}\lambda}
 \newcommand{\dbiter}{\alpha^{'} = \frac{ROI}{ROI(\alpha)}\alpha}
 
+\newcommand{\mr}[2]{\multirow{#1}{*}{#2}}
+\newcommand{\mc}[2]{\multicolumn{#1}{c|}{#2}}
+
 \begin{document}
 
 \title{Dual Based DSP Bidding Strategy and its Application}
@@ -184,9 +187,9 @@ $\sx$ is a relaxed variable, indicating whether $Impression_i$ should be given t
 
 $\sbp$, short for $BidPrice_{i,j}$, is a variable
 
-$\sV(bp)$ is a gain function of $BidPrice$ with support $[0, \infty)$
+$\sV(bp)$ is the gain function of $BidPrice$ with support $[0, \infty)$
 
-$\sW(bp)$ is a resource consumption function of $BidPrice$ with support $[0, \infty)$
+$\sW(bp)$ is the $k$-th resource consumption function of $BidPrice$ with support $[0, \infty)$
 
 $\sB$ is a resource limit constant
 
@@ -194,20 +197,23 @@ $\sB$ is a resource limit constant
 
 Most AdX adopts second price auction mechanism.
 The DSP with the highest bid price wins and pays the second highest bid price.
-For example, three DSPs bid 2\$, 1\$, 3\$ respectively, the third DSP wins and pays 2\$. 
+For example, three DSPs bid 2\$, 1\$, 3\$ respectively, so the third DSP wins and pays 2\$. 
 
 Due to the dynamic nature of auction, the outcome is random.
 To model this uncertainty, we define $p_i(x)$ as
    the distribution of the highest $BidPrice$ of all other DSPs for $Impression_i$ with support $[0, \infty)$.
 Then we have $WinProb_i(bp)=\int_0^{bp} p_i(x) \mathrm{d} x$, and $WinPrice_i(bp)=\int_0^{bp} x p_i(x) \mathrm{d} x$.
 
+It's worth to mention that we make little, if any, assumption about the form of $p_i(x)$.
+In practice, $p_i(x)$ could be modeled either explicitly with method proposed by \cite{Wu2015} or inexplicitly when it's not mandatory.
+
 \subsection{Utility Function Family}
 
-The practical $V(bp)$ and $W(bp)$ in DSP problem come from a certain family.
-Here we give the definition of this family and show its several properties without proof.
+The practical $V(bp)$ and $W(bp)$ in DSP problem come from a certain family
+    which is defined here and whose properties are shown without proof.
 
 \begin{definition}
-$\uff = \{ \uf = \pprob WinProb(x) + \pprice WinPrice(x) = \int_0^{bp} (\pprob + \pprice x)p(x)dx \} $
+$\uff = \{ \uf = \pprob WinProb(bp) + \pprice WinPrice(bp) = \int_0^{bp} (\pprob + \pprice x)p(x)dx \} $
 \end{definition}
 
 \begin{theorem}
@@ -215,70 +221,76 @@ $\uff$ is closed under linear combinations.
 \end{theorem}
 
 \begin{theorem}
-For f in $\uff$ with $\pprob > 0$ and $\pprice < 0$, we have $\argmax\limits_{bp} \uf = - \pprob / \pprice$.
+Given $\forall f \in \uff$ with $\pprob > 0$ and $\pprice < 0$, we have $\argmax\limits_{bp} \uf = - \pprob / \pprice$.
 \end{theorem}
 
 \begin{theorem}
-Let $g(bp)=f(bp;\pprob^g,\pprice^g,p(x))$ and $h(bp)=f(bp;\pprob^h,\pprice^h,p(x))$,
+Given $\forall f,g \in \uff$ with common $p(x)$,
     we have $\frac{d^2h}{d^2g} = \frac{\pprob^g \pprice^h - \pprice^g \pprob^h}{(\pprob^g + \pprice^g bp)^3 p(bp)}$.
 \end{theorem}
 
-\subsection{Objective}
+\subsection{Objectives}
 
-Here're three practical objectives.
-In pay-for-impression mode, DSP could maximize either revenue(gross income) or profit(net income).
-In pay-for-commission mode, DSP would maximize the commission. 
+There're three practical objectives in Table \ref{TableObjectives}.
+In PFI mode, DSP could maximize either revenue(gross income) or profit(net income).
+In PFU mode, DSP would maximize the commission. 
 
-Taking maximizing profit for example, the profit is defined as $\sV(bp)=\sRPM{}WinProb_i(bp)-WinPrice_i(bp)$,
+Taking maximizing profit in PFI mode for example, the profit is defined as $\sV(bp)=\sRPM{}WinProb_i(bp)-WinPrice_i(bp)$,
     thus we have $\pprob=\sRPM$ and $\pprice=-1$.
 
+\begin{table}
+\caption{Practical Objectives\label{TableObjectives}}
 \begin{center}
 \begin{tabular}{|c|c|c|c|}
 \hline
-\multirow{2}{*}{mode}               & \multirow{2}{*}{name}       & \multicolumn{2}{c|}{$\sV(bp)$} \\
+\mr{2}{Mode}   & \mr{2}{Type}       & \mc{2}{$\sV(bp)$} \\
 \cline{3-4}
-                                    &                             & $\pprob$       & $\pprice$ \\
+               &                    & $\pprob$   & $\pprice$ \\
 \hline
-\multirow{2}{*}{Pay For Impression} & Revenue                     & $\sRPM$    & 0 \\
+\mr{2}{PFI}    & Revenue            & $\sRPM$    & 0 \\
 \cline{2-4}
-                                    & Profit                      & $\sRPM$    & -1 \\
+               & Profit             & $\sRPM$    & -1 \\
 \hline
-\multirow{1}{*}{Pay For Commission} & Commission                  & 0              &$Rate_j$ \\
+PFU            & Commission         & 0          & $Rate_j$ \\
 \hline
 \end{tabular}
 \end{center}
+\end{table}
 
-\subsection{Constraint}
+\subsection{Constraints}
 
-Here're five practical constraints.
-In pay-for-impression mode, DSP could set lower bound for ROI(Return on Investment).
-In pay-for-commission mode, advertisers could set upper bound for CPS(Cost Per Show) and CPC.
+There're five practical constraints in Table \ref{TableConstraints}.
+In PFI mode, DSP could set lower bound for ROI(Return on Investment).
+In PFU mode, advertisers could set upper bound for CPS(Cost Per Show) and CPC.
 In both modes, advertisers must set their budget.
 Constraints like budget could be expressed in standard form naturally.
 Others, though not so obvious at the first glance, could be rewritten into standard form as well.
 
-Taking budget upper bound 2 for example, the budget consumption is defined as $\sV(bp)=WinPrice_i(bp)$,
+Taking budget upper bound 2 in PFU mode for example, the budget consumption is defined as $\sV(bp)=WinPrice_i(bp)$,
     thus we have $\pprob=0$ and $\pprice=1$ and the total consumption must not exceed $\sB=Budget^{(k)}$.
 
+\begin{table}
+\caption{Practical Constraints\label{TableConstraints}}
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-\multirow{2}{*}{mode}               & \multirow{2}{*}{name}   & \multicolumn{2}{c|}{$\sW(bp)$}                      & \multirow{2}{*}{$\sB$} \\
+\mr{2}{Mode} & \mr{2}{Type} & \mc{2}{$\sW(bp)$}                      & \mr{2}{$\sB$} \\
 \cline{3-4}
-                                    &                         & $\pprob$                 & $\pprice$                & \\
+             &              & $\pprob$              & $\pprice$      & \\
 \hline
-\multirow{2}{*}{Pay For Impression} & Budget Upper Bound 1    & $\sRPM$              & 0                        & $Budget^{(k)}$ \\
+\mr{2}{PFI}  & Budget 1     & $\sRPM$               & 0              & $Budget^{(k)}$ \\
 \cline{2-5}
-                                    & ROI Lower Bound         & $-\sRPM$             & $ROI^{(k)}$              & 0 \\
+             & ROI          & $-\sRPM$              & $ROI^{(k)}$    & 0 \\
 \hline
-\multirow{3}{*}{Pay For Commission} & Budget Upper Bound 2    & 0                        & 1                        & $Budget^{(k)}$ \\
+\mr{3}{PFU}  & Budget 2     & 0                     & 1              & $Budget^{(k)}$ \\
 \cline{2-5}
-                                    & Average CPS Upper Bound & $-CPS^{(k)}$             & 1                        & 0 \\
+             & Average CPS  & $-CPS^{(k)}$          & 1              & 0 \\
 \cline{2-5}
-                                    & Average CPC Upper Bound & $-CPC^{(k)}CTR_{i,j}$    & 1                        & 0 \\
+             & Average CPC  & $-CPC^{(k)}CTR_{i,j}$ & 1              & 0 \\
 \hline
 \end{tabular}
 \end{center}
+\end{table}
 
 \newpage
 \section{Augmented GAP}
@@ -495,7 +507,7 @@ Due to the nice property of $\uff$, $\sbp^*$ could be calculated easily without 
 In addition, user is usually subjected to very limited number of constraints, which further reduces the complexity of this calculation.
 
 In certain applications, $Q_{i,j}$ is the same for given $i$ and all $j$, then we have $j^* = \argmax\limits_j \sbp^*$.
-For example, when maximizing profit under budget constraint in pay-for-impression mode,
+For example, when maximizing profit under budget constraint in PFI mode,
     we have $\sF(bp) = \int_0^{bp} [(1-\salpha)\sRPM-x]p_i(x)dx$ and $Q_{i,j}$ is always 1.
 By disposing of $p_i(x)$ completely from decision process, it not only simplifies the computation,
     but also encourages $p_i(x)$ free training process.
@@ -539,7 +551,7 @@ This optimization method is $p_i(x)$ free and much easier to implement.
 \subsection{Simulation}
 
 To eliminate the uncertainty, we first varify our strategy in simulated case.
-Suppose in pay-for-impression mode, there's only one ad with budget constraint, and DSP prefers to maximize its profit.
+Suppose in PFI mode, there's only one ad with budget constraint, and DSP prefers to maximize its profit.
 To mock the traffic, ten pairs of $p(x)$ and $RPM$ are drawn randomly.
 Once the configurations are set, problem is solved by SGD developed from our theory and brute force Monte Carlo.
 The experiment is carried out for several times, and both algorithms always achieve the same profit with budget constraint satisfied.
@@ -552,7 +564,7 @@ In our application, advertisers set bugdets and pay for clicks, while DSP is wil
 There're so many ads in our inventory that it's impossible to go through each ad before auction deadline.
 Although these budgets are quite large totally, they are relatively small on average.
 
-By utilizing an accurate CTR predictor, the problem could be transformed equivalently into pay-for-impression mode.
+By utilizing an accurate CTR predictor, the problem could be transformed equivalently into PFI mode.
 And to meet the latency requirement, the whole decision process are decomposed into two stages with so called logical ad.
 Logical ad should be seen as proxy of physical ads, and binded with specific ad retrieval algorithm.
 In the first stage, DSP is supposed to make decisions among just a few logical ads and respond in time.
@@ -570,7 +582,7 @@ Four logical ads are constructed by stacking these algorithms in the same orders
 For example, $LogicalAd_1$ is $[A_1, A_2, A_3, A_4]$ and $LogicalAd_3$ represents $[A_3, A_1, A_2, A_4]$.
 
 In summary, our problem could be approximately modeled as, given several logical ads with literally unlimited budget,
-    maximizing revenue under global ROI constraint in pay-for-impression mode.
+    maximizing revenue under global ROI constraint in PFI mode.
 According to our theory, we have $\sF(bp) = \int_0^{bp} [(1+\alpha)\sRPM - \alpha{}ROIx]p_i(x)dx$
     and $\sbp=\dbbp$.
 Since there is only one resource constraint, superscripts are omitted.
@@ -607,8 +619,8 @@ $LIN$    & $\{LogicalAd_1\}$                   & Linear                      & $
 $ORTB$   & $\{LogicalAd_1\}$                   & Optimal RTB                 & $\ortbbp$
     & $\ortbiter$ \\
 \hline
-$DB_{s}$ & $\{LogicalAd_1\}$                   & \multirow{2}{*}{Dual Based} & \multirow{2}{*}{$\dbbp$}
-    & \multirow{2}{*}{$\dbiter$} \\
+$DB_{s}$ & $\{LogicalAd_1\}$                   & \mr{2}{Dual Based} & \mr{2}{$\dbbp$}
+    & \mr{2}{$\dbiter$} \\
 \cline{1-2}
 $DB_{m}$ & $\{LogicalAd_i|i \in \{1,2,3,4\}\}$ &                             &
     & \\ 
