@@ -1,6 +1,5 @@
-\documentclass{article}
+\documentclass[sigconf]{acmart}
 
-\usepackage{CJK}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -11,17 +10,6 @@
 \usepackage{mathrsfs}
 \usepackage{bbm}
 \usepackage[linesnumbered,ruled]{algorithm2e}
-\usepackage[colorlinks,linkcolor=black,hyperindex,CJKbookmarks]{hyperref}
-
-\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
-\linespread{1.5}
-\setlength{\parindent}{2em}
-
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{corollary}{Corollary}[theorem]
-
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}[section]
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 
@@ -74,55 +62,67 @@
 
 \begin{document}
 
-\begin{CJK}{UTF8}{gbsn}
-
 \title{Dual Based DSP Bidding Strategy and its Application}
-\author{Neo}
-\maketitle
-\newpage
 
-\tableofcontents
-\newpage
+\begin{abstract}
+In recent years, RTB(Real Time Bidding) becomes a popular online advertisement trading method.
+During the auction, each DSP is supposed to evaluate this opportunity and respond with an ad and corresponding bid price.
+Generally speaking, this is a kind of assginment problem for DSP.
+However, unlike traditional one, this assginment problem has bid price as additional variable.
+It's essential to find an optimal ad selection and bid price determination strategy.
+In this document, two major steps are taken to tackle it.
+First, the augmented GAP(Generalized Assignment Problem) is proposed and a general bidding strategy is correspondingly provided.
+Second, we show that DSP problem is a special case of the augmented GAP and the general bidding strategy applies.
+To the best of our knowledge, our solution is the first DSP bidding framework
+    which is derived from strict second price auction assumption
+    and is generally applicable to the multiple ads scenario with various objectives and constraints.
+Our strategy is verified through simulation and outperforms state-of-the-art strategies in real application.
+\end{abstract}
+
+\maketitle
 
 \section{Introduction}
 
-In recent years, RTB(Real Time Bidding) becomes a popular online advertising market.
-There are three major roles in this market, namely SSP(Supply Side Platform), DSP(Demand Side Platform), and AdX(Ad Exchange).
+In recent years, RTB(Real Time Bidding) becomes a popular online advertisement trading method.
+There are three major roles in the market, namely SSP(Supply Side Platform), DSP(Demand Side Platform), and AdX(Ad Exchange).
 SSP controls huge amount of websites and earns money by supplying impressions.
-DSP holds a lot of advertisers and makes profit by fullfilling their demands.
-AdX, as an online advertising exchange, docks SSPs and DSPs and holds auctions.
+DSP holds a lot of advertisers and makes profit through fullfilling their demands.
+AdX, an online advertisement exchange, docks SSPs and DSPs and holds auctions.
 
-In a typical scenario, an audience visits one of SSP's websites and SSP informs AdX to initiate an auction.
-AdX broadcasts bid request to DSPs and wait for a short time(e.g. 100ms).
-After that, each DSP evaluates this opportunity and responds with an ad and corresponding bid price.
-AdX gathers bid responses arrived before deadline and determines the winner and its cost.
-Finally, AdX notifies SSP about the auction result and SSP serves winner's ad to the audience.
+In a typical scenario, an audience visits one of the SSP’s websites, then the AdX is informed and an auction is initiated.
+The AdX broadcasts bid request to DSPs and waits for a short time(e.g. 100ms).
+Each DSP is supposed to evaluate this opportunity and respond with an ad and corresponding bid price.
+The AdX gathers bid responses arriving before deadline and determines the winner and its cost.
+Finally, the AdX notifies the SSP about the auction result and the SSP serves the winner’s ad to the audience.
 
 \begin{figure}[!h]
 \centering
-\includegraphics[width=0.6\linewidth]{./DSP.jpg}
+\includegraphics[width=1.0\linewidth]{./DSP.jpg}
 \caption{Real Time Bidding}
 \end{figure}
 
 DSP usually provides two payment method for advertisers.
-In pay-for-impression mode, the advertiser sets RPM(Revenue Per Mili) and pays RPM for every 1000 impressions.
-In pay-for-commission mode, the advertiser sets commission rate and pays total bidding cost plus a fraction of it as commission.
+In PFI(Pay For Impression) mode, the advertiser sets RPM(Revenue Per Mili) and pays RPM for every 1000 impressions.
+In PFU(Pay For Usage) mode, the advertiser sets commission rate and pays total bidding cost plus a fraction of it as commission
 
-Advertisers must set budget for a certain period of time.
+Advertisers must set budgets for a certain period of time.
 For performance consideration, both DSP and advertisers might set bounds for KPIs of interest.
-DSP is supposed to distribute the bidding opportunity to ads in its inventory, maximizing its gain under above constraints.
+DSP is supposed to distribute the bidding opportunities to ads in its inventory, maximizing its gain under above constraints.
 
-For example, some DSPs are willing to maximize their profit under budget constraint in pay-for-impression mode,
-    where profit is defined as the total revenue earned from advertisers' budget minus total bidding cost payed to AdX.
-Others prefer to maximize commission under both budget and average CPC(Cost Per Click) constraints in pay-for-commission mode
-    in which the total bidding cost payed to AdX divided the total number of clicks must be within predefined threshold.
+For example, some DSPs are willing to maximize their profit under budget constraints in PFI mode,
+    where profit is defined as the total revenue earned from advertisers minus total bidding cost payed to AdX.
+Others prefer to maximize commission under both budget and average CPC(Cost Per Click) constraints in PFU mode,
+    in which the total bidding cost divided by the total number of clicks must be within predefined threshold.
 
-Generally speaking, it's kind of assginment problem for DSP.
-However, unlike traditional ones, it's an assginment problem with bid price as additional variables.
-It's essential to find an optimal ad selection and bid price determination strategy.
-Two major steps are taken to tackle it.
-First, we propose the augmented GAP(Generalized Assignment Problem) and provide general bidding strategy.
-Second, we show that DSP problem is a special case of augmented GAP and the general bidding strategy applies.
+Generally speaking, this is a kind of assginment problem for DSP.
+However, unlike traditional one, this assginment problem has bid price as additional variable.
+It’s essential to find an optimal ad selection and bid price determination strategy.
+In this document, two major steps are taken to tackle it.
+First, the augmented GAP(Generalized Assignment Problem) is proposed and a general bidding strategy is correspondingly provided.
+Second, we show that DSP problem is a special case of the augmented GAP and the general bidding strategy applies.
+To the best of our knowledge, our solution is the first DSP bidding framework
+    which is derived from strict second price auction assumption and is generally applicable
+    to the multiple ads scenario with various objectives and constraints.
 These are the main contributions of this document.
 
 This document is organized as follows.
@@ -131,9 +131,10 @@ In section 2, previous related works are described.
 In section 3, DSP problem is formalized as an mathematical optimization problem.
 In section 4, augmented GAP is studied with proof of its strong duality and resulting strategy.
 In section 5, the theory of augmented GAP is applied to DSP problem and two numeric optimization methods are discussed.
-In section 6, we deploy our strategy in both simulation and real application, and experimental results are analyzed.
+In section 6, we verify our strategy through simulation.
+In section 7, we deploy our strategy in real application and experimental results are analyzed.
+In section 8, conclusions are drawn and future works are discussed.
 
-\newpage
 \section{Related Work}
 
 A linear bidding strategy is proposed in \cite{M6D}, which bids in propotion to the relative quality of impression given base price.
@@ -745,7 +746,5 @@ Bid Landscape Forecasting in Online Ad Exchange Marketplace. Ying Cui et al. KDD
 \bibitem{Wu2015}
 Predicting Winning Price in Real Time Bidding with Censored Data. Wush Chi-Hsuan Wu et al. KDD 2015.
 \end{thebibliography}
-
-\end{CJK}
 
 \end{document}
