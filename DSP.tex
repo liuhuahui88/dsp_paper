@@ -292,7 +292,6 @@ Taking budget upper bound 2 in PFU mode for example, the budget consumption is d
 \end{center}
 \end{table}
 
-\newpage
 \section{Augmented GAP}
 
 \subsection{Primal}
@@ -317,9 +316,9 @@ $k$ is the index of $Constraint$
 
 $\sx$ is a relaxed variable, indicating whether $Item_i$ should be given to $User_j$
 
-$\sV$ is a variable
+$\sV$ is a gain variable
 
-$\sW(V)$ is a resource consumption function of $V$ with support $[0, \infty)$
+$\sW(V)$ is the $k$-th resource consumption function of $V$ with support $[0, \infty)$
 
 $\sB$ is a resource limit constant
 
@@ -328,7 +327,8 @@ $\sB$ is a resource limit constant
 We define several basic functions and show the dual of augmented GAP based on them.
 $\sF$ serves as sort of score function which evaluates the utility of distributing $Item_i$ to $User_j$.
 The mathematical justification of $\sF$ will be given shortly, and it's worth to offer some intuitive explanations first.
-Our gain $V$ is compromised by resource consumption $\sW(V)$ with so called opportunity cost, which could be calculated by unit $\sW(V)$ times price $\salpha$.
+Our gain $V$ is compromised by resource consumption $\sW(V)$ with so called opportunity cost,
+    which could be calculated as unit $\sW(V)$ times price $\salpha$.
 
 \begin{definition}
 $\sF(V; \valpha) = V - \sumk \salpha \sW(V)$
@@ -359,14 +359,17 @@ If $W(V)$ is convex function of $V$, strong duality holds.
 \end{theorem}
 
 \begin{proof}
-P is the primal, and could be splited into 2 nested steps.
+Several auxiliary problems are dened in Table \ref{TableAuxiliaryProblems}.
+P is the primal and could be splited into 2 nested steps.
 The inner step, given $\sx$, maximizes objective with $\sV$ as variables.
 The outer step, maximizes objective with $\sx$ as variables.
 
+\begin{table}
+\caption{Auxiliary Problems\label{TableAuxiliaryProblems}}
 \begin{center}
-\begin{tabular}{|l|c|}
+\begin{tabular}{|c|c|}
 \hline
-\quad  & Description \\
+Name   & Description \\
 \hline
 P      & outer[inner] \\
 \hline
@@ -380,6 +383,7 @@ dd     & outer[dualize(dualize(inner))] \\
 \hline
 \end{tabular}
 \end{center}
+\end{table}
 
 Since $W(V)$ is convex function of $V$, inner is a strong duality problem, inner = dualize(inner), P = d.
 Since dualize(inner) is a strong duality problem, dualize(inner) = dualize(dualize(inner)), d = dd.
@@ -409,7 +413,7 @@ If $\sS(\valpha^*) < 0$, we have $\sx^* = 0$.
 Since $\sS(\valpha^*) < 0$ and $\sbeta^* \ge 0$, we have $\sbeta^* > \sS(\valpha^*)$.
 Now that $\sbeta^* - \sS(\valpha^*) > 0$ and $\sx^* \ge 0$,
     taking above theorem into consideration, $\sx^*$ must be 0,
-    that is $Item_i$ should not distributed to $User_j$.
+    that is $Item_i$ should not be distributed to $User_j$.
 \end{proof}
 
 \begin{corollary}
@@ -421,7 +425,7 @@ Similarly, since $S_{i,j_1}(\valpha^*) < S_{i,j_2}(\valpha^*)$ and $\sbeta^* \ge
     we have $\sbeta^* > S_{i,j_1}(\valpha^*)$.
 Now that $\sbeta^* - S_{i,j_1}(\valpha^*) > 0$ and $x_{i,j_1}^* \ge 0$, 
     taking above theorem into consideration, $x_{i,j_1}^*$ must be 0,
-    that is $Item_i$ should not distributed to dominated $User_{j_1}$.
+    that is $Item_i$ should not be distributed to dominated $User_{j_1}$.
 \end{proof}
 
 \begin{theorem}
@@ -429,7 +433,7 @@ $\sbeta^*(\sum\limits_j \sx^* - 1) = 0$.
 \end{theorem}
 
 \begin{corollary}
-If for at least one $j$ that $\sS(\valpha^*) > 0$, we have $\sum\limits_j \sx^* = 1$.
+If $\exists j$ that $\sS(\valpha^*) > 0$, we have $\sum\limits_j \sx^* = 1$.
 \end{corollary}
 
 \begin{proof}
@@ -460,7 +464,7 @@ Ties could be broken by random or heuristics.
   }
   $j^* = \argmax\limits_j \sS^*$
   
-  \If{$S_{i,j^*} \ge 0$} { bid with ($User_{j^*}$, $V_{i,j^*}^*$) }
+  \If{$S_{i,j^*}^* \ge 0$} { bid with ($User_{j^*}$, $V_{i,j^*}^*$) }
 }
 \end{algorithm}
 
