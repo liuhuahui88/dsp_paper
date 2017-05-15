@@ -549,17 +549,136 @@ Through executing our strategy in production environment, the randomized version
     and the gradients could be approximated with these feedbacks.
 This optimization method is $p_i(x)$ free and much easier to implement.
 
+\section{Simulation}
+
+\subsection{Methodology}
+
+To eliminate the uncertainty, our strategy is verified through simulation.
+For simplicity, p(x) is assumed to be a hill shaped distribution as depicted in Figure \ref{Hill} with its summit as the only parameter.
+To mock the impressions, several pairs of $p(x)$ and $RPM$ are drawn randomly.
+Three mocked ads are shown in Table \ref{TableMockedAds},
+    based on which four simulated cases are proposed in Table \ref{TableSimulatedCases},
+    three for single ad and one for multiple ads.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\linewidth]{./Hill.jpg}
+\caption{Hill Shaped Distribution\label{Hill}}
+\end{figure}
+
+\begin{table}
+\caption{Mocked Ads\label{TableMockedAds}}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\mr{2}{Ad}     & \mr{2}{Mode}  & \mr{2}{Objective}  & \mc{2}{Constraint} \\
+\cline{4-5}
+               &               &                    & $k$   & Type \\
+\hline
+$Ad_1$         & PFI           & Profit             & 1     & Budget \\
+\hline
+$Ad_2$         & PFI           & Revenue            & 2     & ROI \\
+\hline
+\mr{2}{$Ad_3$} & \mr{2}{PFU}   & \mr{2}{Commission} & 3     & Budget \\
+\cline{4-5}
+               &               &                    & 4     & Average CPS \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\caption{Simulated Cases\label{TableSimulatedCases}}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Case       & Inventory                          & \#Impressions \\
+\hline
+$Case_1$   & $\{Ad_1\}$                         & \mr{3}{5} \\
+\cline{1-2}
+$Case_2$   & $\{Ad_2\}$                         & \\
+\cline{1-2}
+$Case_3$   & $\{Ad_3\}$                         & \\
+\hline
+$Case_4$   & $\{Ad_j|j \in \{1,2,3\}\}$         & 15 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+In $Case_1$, $Ad_1$ is in PFI mode with budget constraint, and DSP prefers to maximize its profit.
+In $Case_2$, $Ad_2$ is in PFI mode with ROI constraint, and DSP prefers to maximize its revenue.
+In $Case_3$, $Ad_3$ is in PFU mode with budget and average CPS constraint, and DSP prefers to maximize its commission.
+$Case_4$ is a hybrid case with all above ads in the inventory.
+
+Once the configurations are ready, cases are solved by SGD developed from our theory and brute force MC(Monte Carlo).
+Due to the limited capacity of MC, only 5 impressions are generated for single ad cases and 15 for multiple ads case.
+
+\subsection{Results and Analysis}
+
+In all cases, constraints are satisfied by both SGD and MC, and objective values are shown in Table \ref{TableObjectiveValues}.
+Both algorithms achieve similar primal objective values in the first three cases,
+    while in the last one, however, MC must be far from convergence and is beaten by SGD.
+In addition, the gap between primal and dual objective values proposed by SGD is negligible,
+    as claimed by the strong duality theorem.
+
+\begin{table}
+\caption{Primal and Dual Objective Values\label{TableObjectiveValues}}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\mr{2}{Case} & MC       & \mc{2}{SGD} \\
+\cline{2-4}
+             & Primal   & Primal   & Dual \\
+\hline
+$Case_1$     & 0.7423   & 0.7484   & 0.7484 \\
+\hline
+$Case_2$     & 3.4519   & 3.4719   & 3.4719 \\
+\hline
+$Case_3$     & 0.1000   & 0.1000   & 0.1006 \\
+\hline
+$Case_4$     & 10.7889  & 13.7849  & 13.7897 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Resource statistics and corresponding $\alpha$ of SGD are shown in Table \ref{TableResourcesAndAlpha}.
+As mentioned earlier, the $\alpha$ serves as so called opportunity price of the resource.
+Intuitively speaking, waste of resource with positive surplus shouldn't lead to any opportunity cost.
+As a result, the corresponding $\alpha$ tends to be 0.
+
+\begin{table}
+\caption{Resources and $\valpha$\label{TableResourcesAndAlpha}}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\mr{2}{Case}      & \mr{2}{Ad}     & \mc{4}{Resource}                                     & \mr{2}{$\alpha$} \\
+\cline{3-6}
+                  &                & $k$   & Limit       & Consumption     & Surplus      & \\
+\hline
+$Case_1$          & $Ad_1$         & 1     & 1.0000      & 1.0000          & 0.0000       & 0.6208 \\
+\hline
+$Case_2$          & $Ad_2$         & 2     & 0.0000      & 0.0000          & 0.0000       & 1.6369 \\
+\hline
+\mr{2}{$Case_3$}  & \mr{2}{$Ad_3$} & 3     & 1.0000      & 1.0000          & 0.0000       & 0.1001 \\
+\cline{3-7}
+                  &                & 4     & 0.0000      & -0.8120         & 0.8120       & 0.0008 \\
+\hline
+\mr{4}{$Case_4$}  & $Ad_1$         & 1     & 1.0000      & 0.9971          & 0.0029       & 0.3723 \\
+\cline{2-7}
+                  & $Ad_2$         & 2     & 0.0000      & -0.0004         & 0.0004       & 1.2480 \\
+\cline{2-7}
+                  & \mr{2}{$Ad_3$} & 3     & 1.0000      & 0.9981          & 0.0019       & 0.0929 \\
+\cline{3-7}
+                  &                & 4     & 0.0000      & -0.1089         & 0.1089       & 0.0273 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
 \newpage
 \section{Experiment}
-
-\subsection{Simulation}
-
-To eliminate the uncertainty, we first varify our strategy in simulated case.
-Suppose in PFI mode, there's only one ad with budget constraint, and DSP prefers to maximize its profit.
-To mock the traffic, ten pairs of $p(x)$ and $RPM$ are drawn randomly.
-Once the configurations are set, problem is solved by SGD developed from our theory and brute force Monte Carlo.
-The experiment is carried out for several times, and both algorithms always achieve the same profit with budget constraint satisfied.
-In addition, the primal and dual objective values proposed by SGD are exactly the same, as claimed by the strong duality theorem.
 
 \subsection{Application}
 
