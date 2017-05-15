@@ -468,7 +468,6 @@ Ties could be broken by random or heuristics.
 }
 \end{algorithm}
 
-\newpage
 \section{Solution}
 
 \subsection{Dual}
@@ -508,12 +507,12 @@ In practical cases, $W(bp)$ is convex function of $V(bp)$, strong duality holds
 
 Here's corresponding dual based strategy for DSP problem.
 Due to the nice property of $\uff$, $\sbp^*$ could be calculated easily without knowledge of $p_i(x)$.
-In addition, user is usually subjected to very limited number of constraints, which further reduces the complexity of this calculation.
+In addition, ad is usually subjected to very limited number of constraints, which further reduces the complexity of this calculation.
 
 In certain applications, $Q_{i,j}$ is the same for given $i$ and all $j$, then we have $j^* = \argmax\limits_j \sbp^*$.
 For example, when maximizing profit under budget constraint in PFI mode,
     we have $\sF(bp) = \int_0^{bp} [(1-\salpha)\sRPM-x]p_i(x)dx$ and $Q_{i,j}$ is always 1.
-By disposing of $p_i(x)$ completely from decision process, it not only simplifies the computation,
+By disposing of $p_i(x)$ completely from deciding process, it not only simplifies the computation,
     but also encourages $p_i(x)$ free training process.
 
 \begin{algorithm}
@@ -531,15 +530,16 @@ By disposing of $p_i(x)$ completely from decision process, it not only simplifie
   }
   $j^* = \argmax\limits_j \sS^*$
   
-  \If{$S_{i,j^*} \ge 0$} { bid with ($Ad_{j^*}$, $bp_{i,j^*}^*$) }
+  \If{$S_{i,j^*}^* \ge 0$} { bid with ($Ad_{j^*}$, $bp_{i,j^*}^*$) }
 }
 \end{algorithm}
 
 \subsection{Numeric Opmitization}
 
-In the dual problem, by fixing $\valpha$, we have $\sbeta^* = \sbeta(\valpha) = \max \{ 0, \sS(\valpha) \forall j \}$.
-It's easy to prove that $\frac{d\sbeta(\valpha)}{d\salpha}$ must be either $0$ or $\sW(\sbp(\valpha))$.
-Now we define $\sG(\valpha) = \sum\limits_k \frac{\salpha \sB}{N} + \sbeta(\valpha)$, in which $N$ is the number of items.
+By fixing $\valpha$ in the dual problem, $\sbeta^*$ could be calculated independently,
+    that is $\sbeta^* = \sbeta(\valpha) = \max \{ 0, \sS(\valpha) \forall j \}$.
+It's easy to prove that $\frac{d\sbeta(\valpha)}{d\salpha}$ must be either $0$ or $-\sW(\sbp(\valpha))$.
+Now we define $\sG(\valpha) = \sum\limits_k \frac{\salpha \sB}{N} + \sbeta(\valpha)$, in which $N$ is the number of impressions.
 Then the dual problem could be rewritten as $\min\limits_{\valpha \ge 0} \sum\limits_i \sG(\valpha)$
     and solved by SGD(Stochastic Gradient Descent).
 Due to the convexity of dual problem, it must converge to the global optimal $\valpha^*$.
