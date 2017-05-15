@@ -9,6 +9,7 @@
 \usepackage{multirow}
 \usepackage{mathrsfs}
 \usepackage{bbm}
+\usepackage{cite}
 \usepackage[linesnumbered,ruled]{algorithm2e}
 
 \DeclareMathOperator*{\argmax}{arg\,max}
@@ -137,21 +138,23 @@ In section 8, conclusions are drawn and future works are discussed.
 
 \section{Related Work}
 
-A linear bidding strategy is proposed in \cite{M6D}, which bids in propotion to the relative quality of impression given base price.
-\cite{WeinanZhang2014} suguests a non-linear relationship between optimal bid price and KPIs.
-They explicitly model the winning rate as function of bid price with specific form.
-Both win rate and winning price are estimated in \cite{XiangLi2014}, and corresponding bidding strategy is provided.
-While above research considers only one campaign, \cite{WeinanZhang2015} studies bidding strategy for multiple campaigns.
+The linear bidding strategy proposed in \cite{M6D} is a heuristic method and,
+    given base price, bids in propotion to the relative quality of impression.
+\cite{WeinanZhang2014} suggests a non-linear relationship between optimal bid price and KPIs.
+Based on calculus of variations, their strategy is derived from first price auction assumption.
+Winning rate is explicitly modeled as a function of bid price, and,
+    to find the analytical solution, this function must be of specific forms.
+Both win rate and winning price are estimated in \cite{XiangLi2014}, and the corresponding bidding strategy is provided.
+While all above researches consider only one campaign,
+    \cite{WeinanZhang2015} extends \cite{WeinanZhang2014} to bidding strategy for multiple campaigns.
 
 Bidding landscape is studied in \cite{YingCui2011}, and log normal is used to model the distribution of winning price.
-\cite{Wu2015} predicts win price with censored data, which utilizes both winnig and losing samples in the sealed auction.
+\cite{Wu2015} predicts win price with censored data, which utilizes both winning and losing samples in the sealed auction.
 
-Our work is mainly inspired by \cite{YeChen2011} in which,
-    after modeling problem as linear programming,
-    compact allocation strategy derives from complemetary slackness.
-After all, DSP problem is sort of online matching problem and \cite{Mehta} is an informative survey of this area.
+Our work is mainly inspired by \cite{YeChen2011} in which compact allocation strategy,
+    after modeling its problem as linear programming, is derived from complementary slackness.
+After all, DSP problem is a sort of online matching problem and \cite{Mehta} is an informative survey of this area.
 
-\newpage
 \section{Formalization}
 
 \subsection{Primal}
@@ -576,14 +579,14 @@ To take full advantage of that, we choose the $p_i(x)$ free optimization method,
     that is $\dbiter$.
 
 We compare our strategy with a variation of linear bidding strategy.
-In \cite{M6D}, it's suguested that $bp_i=\frac{CTR_i}{CTR}Bid$.
+%In \cite{M6D}, it's suguested that $bp_i=\frac{CTR_i}{CTR}Bid$.
 In our application, it's natural to define $bp_i=\frac{ROI_i}{ROI}Bid$.
 However, unlike $CTR_i$ which is independent of $bp_i$, $ROI_i$ actually varies with it.
 As a result, we have $\liniter$,
     which .
 
 We also apply optimal RTB theory to our application for comparison.
-According to \cite{WeinanZhang2014}, we model the win probability as $w(bp;c)=\frac{bp}{c+bp}$
+%According to \cite{WeinanZhang2014}, we model the win probability as $w(bp;c)=\frac{bp}{c+bp}$
     and bid with $bp_i=\ortbbp$,
     in which $c$ is fitted with historical data
     and $\lambda$ is iteratively tuned with $\ortbiter$.
@@ -721,30 +724,7 @@ $DB_{m}$ & $\{LogicalAd_i|i \in \{1,2,3,4\}\}$ &                             &
     \quad & = && dd
 \end{align*}
 
-\begin{thebibliography}{9}
-\bibitem{YeChen2011}
-Real-Time Bidding Algorithms for Performance-Based Display Ad Allocation. Ye Chen et al. KDD 2011.
-
-\bibitem{Mehta}
-Online Matching and Ad Allocation. Aranyak Mehta.
-
-\bibitem{M6D}
-Bid Optimizing and Inventory Scoring in Targeted Online Advertising. Claudia Perlich et al. KDD 2012.
-  
-\bibitem{WeinanZhang2014}
-Optimal Real-Time Bidding for Display Advertising. Weinan Zhang et al. KDD 2014.
-
-\bibitem{XiangLi2014}
-Programmatic Buying Bidding Strategies with Win Rate and Winning Price Estimation in Real Time Mobile Advertising. Xiang Li et al. PAKDD 2014.
-
-\bibitem{WeinanZhang2015}
-Statistical Arbitrage Mining for Display Advertising. Weinan Zhang et al. KDD 2015.
-
-\bibitem{YingCui2011}
-Bid Landscape Forecasting in Online Ad Exchange Marketplace. Ying Cui et al. KDD 2011.
-
-\bibitem{Wu2015}
-Predicting Winning Price in Real Time Bidding with Censored Data. Wush Chi-Hsuan Wu et al. KDD 2015.
-\end{thebibliography}
+\bibliographystyle{plain}
+\bibliography{DSP}
 
 \end{document}
