@@ -93,11 +93,11 @@ SSP controls huge amount of websites and earns money by supplying impressions.
 DSP holds a lot of advertisers and makes profit through fullfilling their demands.
 AdX, an online advertisement exchange, docks SSPs and DSPs and holds auctions.
 
-In a typical scenario, an audience visits one of the SSP’s websites, then the AdX is informed and an auction is initiated.
+In a typical scenario, an audience visits one of the SSP's websites, then the AdX is informed and an auction is initiated.
 The AdX broadcasts bid request to DSPs and waits for a short time(e.g. 100ms).
 Each DSP is supposed to evaluate this opportunity and respond with an ad and corresponding bid price.
 The AdX gathers bid responses arriving before deadline and determines the winner and its cost.
-Finally, the AdX notifies the SSP about the auction result and the SSP serves the winner’s ad to the audience.
+Finally, the AdX notifies the SSP about the auction result and the SSP serves the winner's ad to the audience.
 
 \begin{figure}[!h]
 \centering
@@ -107,7 +107,7 @@ Finally, the AdX notifies the SSP about the auction result and the SSP serves th
 
 DSP usually provides two payment method for advertisers.
 In PFI(Pay For Impression) mode, the advertiser sets RPM(Revenue Per Mili) and pays RPM for every 1000 impressions.
-In PFU(Pay For Usage) mode, the advertiser sets commission rate and pays total bidding cost plus a fraction of it as commission
+In PFU(Pay For Usage) mode, the advertiser sets commission rate and pays total bidding cost plus a fraction of it as commission.
 
 Advertisers must set budgets for a certain period of time.
 For performance consideration, both DSP and advertisers might set bounds for KPIs of interest.
@@ -120,7 +120,7 @@ Others prefer to maximize commission under both budget and average CPC(Cost Per 
 
 Generally speaking, this is a kind of assginment problem for DSP.
 However, unlike traditional one, this assginment problem has bid price as additional variable.
-It’s essential to find an optimal ad selection and bid price determination strategy.
+It's essential to find an optimal ad selection and bid price determination strategy.
 In this document, two major steps are taken to tackle it.
 First, the augmented GAP(Generalized Assignment Problem) is proposed and a general bidding strategy is correspondingly provided.
 Second, we show that DSP problem is a special case of the augmented GAP and the general bidding strategy applies.
@@ -547,14 +547,14 @@ This optimization method, though generally applicable, requires explicit modelin
 
 Through executing our strategy in production environment, the randomized version of $\sW(\sbp(\valpha))$ is revealed
     and the gradients could be approximated with these feedbacks.
-This optimization method is $p_i(x)$ free and much easier to implement.
+This optimization method is $p_i(x)$ free thus much easier to implement.
 
 \section{Simulation}
 
 \subsection{Methodology}
 
 To eliminate the uncertainty, our strategy is verified through simulation.
-For simplicity, p(x) is assumed to be a hill shaped distribution as depicted in Figure \ref{Hill} with its summit as the only parameter.
+For simplicity, $p(x)$ is assumed to be a hill shaped distribution as depicted in Figure \ref{Hill} with its summit as the only parameter.
 To mock the impressions, several pairs of $p(x)$ and $RPM$ are drawn randomly.
 Three mocked ads are shown in Table \ref{TableMockedAds},
     based on which four simulated cases are proposed in Table \ref{TableSimulatedCases},
@@ -682,7 +682,7 @@ $Case_2$          & $Ad_2$         & 2     & 0.0000      & 0.0000          & 0.0
 \subsection{Scenario}
 
 We also deploy our strategy in a real industrial application.
-In our application, advertisers set bugdets and pay for clicks, while DSP is willing to maximize revenue under global daily ROI constraint.
+In our application, advertisers set budgets and pay for clicks, while DSP is willing to maximize revenue under global daily ROI constraint.
 There're so many ads in our inventory that it's impossible to go through each ad before auction deadline.
 Although these budgets are quite large totally, they are relatively small on average.
 
@@ -737,7 +737,7 @@ $ORTB$   & $\{LogicalAd_1\}$                   & Optimal RTB        & $\ortbbp$ 
 \cline{1-5}
 $DB_{s}$ & $\{LogicalAd_1\}$                   & \mr{2}{Dual Based} & \mr{2}{$\dbbp$} & \mr{2}{$\dbiter$} & \\
 \cline{1-2}
-$DB_{m}$ & $\{LogicalAd_i|i \in \{1,2,3,4\}\}$ &                    &                 &                   & \\
+$DB_{m}$ & $\{LogicalAd_j|j \in \{1,2,3,4\}\}$ &                    &                 &                   & \\
 \hline
 \end{tabular}
 \end{center}
@@ -779,11 +779,37 @@ The $DB_m$, as an ensemble of four ad retrieval algorithms,
     achieves the most revenue without violation of the daily ROI constraint,
     thus becomes the best strategy.
 
-\section{Appendix}
+\section{Conclusions and Future Works}
 
-\subsection{Strong Duality Proof}
+In this document, we propose a dual based DSP bidding strategy
+    derived from second price auction assumption according to convex optimization theory.
+Our strategy is verified through simulation and outperforms state-of-the-art strategies in real application.
+It's a theoratically solid and practically effective strategy with simple implementation and various applications.
 
-\subsubsection{P $\le$ D}
+Three problems remain unsolved and deserve further study.
+First, is there a better way to solve $\valpha$ of large scale in dynamic environment?
+On the one hand, in a typical DSP, there will be millions of constraints shared by similar number of ads.
+Each of the constraints deserves a $\alpha$, which makes the vector $\valpha$ very large.
+On the other hand, billions of impressions are broadcasted by AdX per day and bid by hundreds of DSPs simultaneously.
+The bidding strategies are interactively adjusted by DSPs and the inventories are dynamically updated by advertisers,
+    which makes the bidding landscape unstable.
+Both properties make the optimal $\valpha$ relatively hard to solve.
+
+Second, how to construct and index logical ads automatically in massive ads applications, balancing latency and performance?
+It's obvious that both deciding and training processes share the same ad evaluation and maximum determination style,
+    which makes their computational complexities linearly related with the number of candidate logical ads.
+At one extreme, each ad is represented by exactly one logical ad, and the consequent latency is inacceptable.
+At the other extreme, all ads are represented by the only logical ad, while the performance might be seriously degenerated.
+A proper compromise combined with efficient indexing tricks will accelerate both processes by orders of magnitude.
+
+Third, how to optimally break ties when they are common and critical in certain applications?
+Taking an imaginary senario for example, all ads are in PFI mode with budget constraints, while DSP is willing to maximize its profit.
+Besides, these ads share the universal constant RPM and are targeted respectively to sets of impressions which are overlaped.
+In this circumstance, resolution of impressions and ads is extremely low and ties are very prevalent.
+
+\appendix
+
+\section{Strong Duality Proof}
 
 \begin{align*}
     P     & = &&
@@ -814,8 +840,6 @@ The $DB_m$, as an ensemble of four ad retrieval algorithms,
     \quad & = && D
 \end{align*}
 
-\subsubsection{D = DD}
-
 \begin{align*}
     D     & = &&
         \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\stheta,\seta \ge 0 } \{
@@ -831,8 +855,6 @@ The $DB_m$, as an ensemble of four ad retrieval algorithms,
         \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \\
     \quad & = && DD
 \end{align*}
-
-\subsubsection{P = d}
 
 \begin{align*}
     P     & = &&
@@ -863,8 +885,6 @@ The $DB_m$, as an ensemble of four ad retrieval algorithms,
         \min\limits_{\salpha \ge 0} \{ \sumk \salpha \sB + \sumij \sx \sS(\valpha) \} \} \\
     \quad & = && d
 \end{align*}
-
-\subsubsection{d = dd}
 
 \begin{align*}
     d     & = &&
