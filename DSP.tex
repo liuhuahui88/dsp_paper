@@ -811,100 +811,85 @@ In this circumstance, resolution of impressions and ads is extremely low and tie
 
 \section{Strong Duality Proof}
 
-\begin{align*}
-    P     & = &&
-        - \min\limits_{\substack{\sx,\sV \\ \agapresourceconstraint \\ \assignmentconstraint \\ \sx \ge 0 }} \{ - \sumij \sx \sV \} \\
-    \quad & = &&
-        - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\slambda \ge 0}
-        \{ - \sumij \sx \sV
-        + \sumk \salpha [\sumij \sx \sW(\sV) - \sB] \\
-    \quad & \quad &&
-        + \sumi \sbeta (\sumj \sx - 1)
-        + \sumij \slambda(-\sx) \} \} \\
-    \quad & = &&
-        - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\slambda \ge 0}
-        \{ \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \slambda]
-        - \sumk \salpha \sB
-        - \sumi \sbeta \} \} \\
-    \quad & \le &&
-        - \max\limits_{\salpha,\sbeta,\slambda \ge 0} \{ \min\limits_{\sx,\sV}
-        \{ \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \slambda]
-        - \sumk \salpha \sB
-        - \sumi \sbeta \} \} \\
-    \quad & = &&
-        - \max\limits_{\substack{ \salpha,\sbeta \ge 0 \\ \scoreconstraint }}
-        \{ -\sumk \salpha \sB - \sumi \sbeta \} \\
-    \quad & = &&
-        \min\limits_{\substack{ \salpha,\sbeta \ge 0 \\ \scoreconstraint }}
-        \{ \sumk \salpha \sB + \sumi \sbeta \} \\
-    \quad & = && D
-\end{align*}
+Here we give the detailed proof of the strong duality. We first prove that P $\le$ D by dualizing P.
 
-\begin{align*}
-    D     & = &&
-        \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\stheta,\seta \ge 0 } \{
-        \sumk \salpha \sB + \sumi \sbeta  + \sumij \sx[\sS(\valpha) - \sbeta] + \sumk \stheta (-\salpha) + \sumi \seta (-\sbeta) \} \} \\
-    \quad & = &&
-        \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\stheta,\seta\ge 0 } \{
-        \sumk \salpha (\sB - \stheta) + \sumi \sbeta (1 - \sumj \sx - \seta) + \sumij \sx \sS(\valpha) \} \} \\
-    \quad & = &&
-        \max\limits_{\sx,\stheta,\seta \ge 0 } \{ \min\limits_{\salpha,\sbeta} \{
-        \sumk \salpha (\sB - \stheta) + \sumi \sbeta (1 - \sumj \sx - \seta) + \sumij \sx \sS(\valpha) \} \} \\
-    \quad & = &&
-        \max\limits_{\substack{\sx,\stheta \ge 0 \\ \assignmentconstraint }} \{ \min\limits_{\salpha} \{
-        \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \\
-    \quad & = && DD
-\end{align*}
+\begin{flalign*}
+    P = & - \min\limits_{\substack{\sx,\sV \\ \agapresourceconstraint \\ \assignmentconstraint \\ \sx \ge 0 }} \{ - \sumij \sx \sV \} &&
+\end{flalign*}
+\begin{flalign*}
+      = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\slambda \ge 0} \{ - \sumij \sx \sV \\
+        & + \sumk \salpha [\sumij \sx \sW(\sV) - \sB] \\
+        & + \sumi \sbeta (\sumj \sx - 1) + \sumij \slambda(-\sx) \} \} \\
+      = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\slambda \ge 0} \{ - \sumk \salpha \sB - \sumi \sbeta \\
+        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \slambda] \} \} \\
+    \le & - \max\limits_{\salpha,\sbeta,\slambda \ge 0} \{ \min\limits_{\sx,\sV} \{ - \sumk \salpha \sB - \sumi \sbeta \\
+        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \slambda] \} \} \\
+      = & - \max\limits_{\substack{ \salpha,\sbeta \ge 0 \\ \scoreconstraint }} \{ -\sumk \salpha \sB - \sumi \sbeta \} \\
+      = & \min\limits_{\substack{ \salpha,\sbeta \ge 0 \\ \scoreconstraint }} \{ \sumk \salpha \sB + \sumi \sbeta \} \\
+      = & D &&
+\end{flalign*}
 
-\begin{align*}
-    P     & = &&
-        \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-        \max\limits_{\substack{ \sV \\ \agapresourceconstraint }} \{
-        \sumij \sx \sV \} \} \\
-    \quad & = &&
-        \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-        - \min\limits_{\substack{ \sV \\ \agapresourceconstraint }} \{
-        - \sumij \sx \sV \} \} \\
-    \quad & = &&
-        \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-        - \min\limits_{\sV} \{ \max\limits_{\salpha \ge 0} \{
-        - \sumij \sx \sV + \sumk \salpha [\sumij \sx \sW(\sV) - B^{(k)}] \} \} \} \\
-    \quad & = &&
-        \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-        - \min\limits_{\sV} \{ \max\limits_{\salpha \ge 0} \{
-        \sumij \sx [-\sV + \sumk \salpha \sW(\sV)] - \sumk \salpha B^{(k)} \} \} \} \\
-    \quad & = &&
-        \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-        - \max\limits_{\salpha \ge 0} \{ \min\limits_{\sV} \{
-        \sumij \sx [-\sV + \sumk \salpha \sW(\sV)] - \sumk \salpha B^{(k)} \} \} \} \\
-    \quad & = &&
-        \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-        - \max\limits_{\salpha \ge 0} \{ - \sumk \salpha \sB - \sumij \sx \sS(\valpha) \} \} \\
-    \quad & = &&
-        \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-        \min\limits_{\salpha \ge 0} \{ \sumk \salpha \sB + \sumij \sx \sS(\valpha) \} \} \\
-    \quad & = && d
-\end{align*}
+Next, we prove that D = DD by dualizing DD.
 
-\begin{align*}
-    d     & = &&
-        \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-        \min\limits_{\salpha} \{ \max\limits_{\stheta \ge 0} \{
-        \sumk \salpha \sB + \sumij \sx \sS(\valpha) + \sumk \stheta (-\salpha)\} \} \}\\
-    \quad & = &&
-        \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-        \min\limits_{\salpha} \{ \max\limits_{\stheta \ge 0} \{
-        \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \}\\
-    \quad & = &&
-        \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-        \max\limits_{\stheta \ge 0} \{ \min\limits_{\salpha} \{
-        \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \}\\
-    \quad & = &&
-        \max\limits_{\substack{ \sx,\stheta \ge 0 \\ \assignmentconstraint }} \{
-        \min\limits_{\salpha} \{
-        \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \}\\
-    \quad & = && dd
-\end{align*}
+\begin{flalign*}
+    D = & \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\stheta,\seta \ge 0 } \{ \sumk \salpha \sB + \sumi \sbeta \\
+        & + \sumij \sx[\sS(\valpha) - \sbeta] \\
+        & + \sumk \stheta (-\salpha) + \sumi \seta (-\sbeta) \} \} \\
+      = & \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\stheta,\seta \ge 0 } \{ \sumk \salpha (\sB - \stheta) \\
+        & + \sumi \sbeta (1 - \sumj \sx - \seta) + \sumij \sx \sS(\valpha) \} \} \\
+      = & \max\limits_{\sx,\stheta,\seta \ge 0 } \{ \min\limits_{\salpha,\sbeta} \{ \sumk \salpha (\sB - \stheta) \\
+        & + \sumi \sbeta (1 - \sumj \sx - \seta) + \sumij \sx \sS(\valpha) \} \} \\
+      = & \max\limits_{\substack{\sx,\stheta \ge 0 \\ \assignmentconstraint }} \{ \min\limits_{\salpha} \{
+          \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \\
+      = & DD &&
+\end{flalign*}
+
+After that, we prove that P = d by dualizing the inner step of P with the outer step unchanged.
+
+\begin{flalign*}
+    P = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+          \max\limits_{\substack{ \sV \\ \agapresourceconstraint }} \{
+          \sumij \sx \sV \} \} \\
+      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+          - \min\limits_{\substack{ \sV \\ \agapresourceconstraint }} \{
+          - \sumij \sx \sV \} \} \\
+      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+          - \min\limits_{\sV} \{ \max\limits_{\salpha \ge 0} \{
+          - \sumij \sx \sV \\
+        & + \sumk \salpha [\sumij \sx \sW(\sV) - B^{(k)}] \} \} \} \\
+      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+          - \min\limits_{\sV} \{ \max\limits_{\salpha \ge 0} \{ - \sumk \salpha B^{(k)} \\
+        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV)] \} \} \} \\
+      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+          - \max\limits_{\salpha \ge 0} \{ \min\limits_{\sV} \{ - \sumk \salpha B^{(k)} \\
+        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV)] \} \} \} \\
+      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+          - \max\limits_{\salpha \ge 0} \{ - \sumk \salpha \sB - \sumij \sx \sS(\valpha) \} \} \\
+      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+          \min\limits_{\salpha \ge 0} \{ \sumk \salpha \sB + \sumij \sx \sS(\valpha) \} \} \\
+      = & d &&
+\end{flalign*}
+
+At last, we prove that d = dd by dualizing the inner step of d with the outer step unchanged.
+
+\begin{flalign*}
+    d = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+          \min\limits_{\salpha} \{ \max\limits_{\stheta \ge 0} \{
+          \sumk \salpha \sB + \sumij \sx \sS(\valpha) \\
+        & + \sumk \stheta (-\salpha)\} \} \} \\
+      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+          \min\limits_{\salpha} \{ \max\limits_{\stheta \ge 0} \{
+          \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \} \\
+      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+          \max\limits_{\stheta \ge 0} \{ \min\limits_{\salpha} \{
+          \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \} \\
+      = & \max\limits_{\substack{ \sx,\stheta \ge 0 \\ \assignmentconstraint }} \{
+          \min\limits_{\salpha} \{
+          \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \\
+      = & dd &&
+\end{flalign*}
+
+It's obvious that DD and dd are of the same form, thus DD = dd. As a result, we have P = D and strong duality holds.
 
 \bibliographystyle{plain}
 \bibliography{DSP}
