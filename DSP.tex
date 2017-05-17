@@ -11,6 +11,7 @@
 \usepackage{bbm}
 \usepackage{cite}
 \usepackage[linesnumbered,ruled]{algorithm2e}
+\allowdisplaybreaks
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 
@@ -129,15 +130,15 @@ To the best of our knowledge, our solution is the first DSP bidding framework
     to the multiple ads scenario with various objectives and constraints.
 These are the main contributions of this document.
 
-This document is organized as follows.
-In section 1, the background knowledge about RTB and DSP are introduced.
-In section 2, previous related works are described.
-In section 3, DSP problem is formalized as an mathematical optimization problem.
-In section 4, augmented GAP is studied with proof of its strong duality and resulting strategy.
-In section 5, the theory of augmented GAP is applied to DSP problem and two numeric optimization methods are discussed.
-In section 6, we verify our strategy through simulation.
-In section 7, we deploy our strategy in real application and experiment results are analyzed.
-In section 8, conclusions are drawn and future works are discussed.
+%This document is organized as follows.
+%In section 1, the background knowledge about RTB and DSP are introduced.
+%In section 2, previous related works are described.
+%In section 3, DSP problem is formalized as an mathematical optimization problem.
+%In section 4, augmented GAP is studied with proof of its strong duality and resulting strategy.
+%In section 5, the theory of augmented GAP is applied to DSP problem and two numeric optimization methods are discussed.
+%In section 6, we verify our strategy through simulation.
+%In section 7, we deploy our strategy in real application and experiment results are analyzed.
+%In section 8, conclusions are drawn and future works are discussed.
 
 \section{Related Work}
 
@@ -150,12 +151,32 @@ Winning rate is explicitly modeled as a function of bid price, and,
 Both win rate and winning price are estimated in \cite{XiangLi2014}, and the corresponding bidding strategy is provided.
 While all above researches consider only one campaign,
     \cite{WeinanZhang2015} extends \cite{WeinanZhang2014} to bidding strategy for multiple campaigns.
+\cite{Joint2016} studies the joint optimization of multiple objectives with priorities.
+\cite{Lift2016} argues that the bid price should be decided
+    based on the performance lift rather than absolute performance value.
+Risk management of RTB is discussed and risk-aware bidding strategy is proposed in \cite{Risk2017}.
+By modeling the state transition via auction competition,
+    the optimal bidding policy is derived in \cite{Reinforce2017} based on reinforcement learning theory.
 
-Bidding landscape is studied in \cite{YingCui2011}, and log normal is used to model the distribution of winning price.
+The probability estimation of interested feedbacks plays a central role in performance based advertising.
+CTR prediction is of great importance and extensively studied by researchers.
+FTRL-Proximal, an online learning algorithm, is proposed in \cite{Google2013} and sparse model is learned for CTR prediction.
+In \cite{Facebook2014}, a hybrid model which combines decision trees with logistic regression
+    outperforms either of these methods on their own.
+In \cite{FFM2016}, field-aware factorization machines are applied to predict CTR.
+Compared with clicks, the conversions are even more rare and harder to predict.
+To tackle the data sparseness, a hierarchical method is proposed in \cite{CVR} for CVR(Conversion Rate) prediction.
+Feedbacks are usually delayed in practice and \cite{DelayedFeedback} tries to
+    distinguish negative training samples without feedbacks eventually from those with delayed ones.
+
+Bidding landscape is studied in \cite{YingCui2011} and log normal is used to model the distribution of winning price.
 \cite{Wu2015} predicts win price with censored data, which utilizes both winning and losing samples in the sealed auction.
+Traffic prediction for DSP is discussed in \cite{Traffic2016}.
+Budget pacing is achieved through throttling in \cite{Throttle2015} and bid price adjustment in \cite{Pacing2013}.
 
 Our work is mainly inspired by \cite{YeChen2011} in which compact allocation strategy,
     after modeling its problem as linear programming, is derived from complementary slackness.
+Sealed second price auction is studied in \cite{SSPA1961}.
 After all, DSP problem is a sort of online matching problem and \cite{Mehta} is an informative survey of this area.
 
 \section{Formalization}
@@ -195,7 +216,7 @@ $\sB$ is a resource limit constant
 
 \subsection{Second Price Auction}
 
-Most AdX adopts second price auction mechanism.
+Most AdX adopts sealed second price auction mechanism.
 The DSP with the highest bid price wins and pays the second highest bid price.
 For example, three DSPs bid 2\$, 1\$, 3\$ respectively, so the third DSP wins and pays 2\$. 
 
@@ -236,7 +257,7 @@ In PFI mode, DSP could maximize either revenue(gross income) or profit(net incom
 In PFU mode, DSP would maximize the commission. 
 
 Taking maximizing profit in PFI mode for example, the profit is defined as $\sV(bp)=\sRPM{}WinProb_i(bp)-WinPrice_i(bp)$,
-    thus we have $\pprob=\sRPM$ and $\pprice=-1$.
+    and we have $\pprob=\sRPM$ and $\pprice=-1$.
 
 \begin{table}
 \caption{Practical Objectives\label{TableObjectives}}
@@ -267,7 +288,7 @@ Constraints like budget could be expressed in standard form naturally.
 Others, though not so obvious at the first glance, could be rewritten into standard form as well.
 
 Taking budget upper bound 2 in PFU mode for example, the budget consumption is defined as $\sV(bp)=WinPrice_i(bp)$,
-    thus we have $\pprob=0$ and $\pprice=1$ and the total consumption must not exceed $\sB=Budget^{(k)}$.
+    and we have $\pprob=0$ and $\pprice=1$ and the total consumption must not exceed $\sB=Budget^{(k)}$.
 
 \begin{table}
 \caption{Practical Constraints\label{TableConstraints}}
@@ -473,7 +494,8 @@ Ties could be broken by random or heuristics.
 \subsection{Dual}
 
 We define corresponding basic functions and show the dual of DSP problem based on them.
-It's worth to notice that $\sF$ is linear combination of $\sV(bp)$ and $\sW(bp)$ from $\uff$, thus it must belong to $\uff$ too.
+It's worth to notice that $\sF$ is linear combination of $\sV(bp)$ and $\sW(bp)$ from $\uff$
+As a result, it must belong to $\uff$ too.
 
 \begin{definition}
 $\sF(bp; \valpha) = \sV(bp) - \sumk \salpha \sW(bp)$
@@ -547,7 +569,7 @@ This optimization method, though generally applicable, requires explicit modelin
 
 Through executing our strategy in production environment, the randomized version of $\sW(\sbp(\valpha))$ is revealed
     and the gradients could be approximated with these feedbacks.
-This optimization method is $p_i(x)$ free thus much easier to implement.
+This optimization method is $p_i(x)$ free and much easier to implement.
 
 \section{Simulation}
 
@@ -766,7 +788,7 @@ For each group, the daily statistics of four metrics are plotted in Figure \ref{
 \end{figure}
 
 The $LIN$, though with theoratical optimal intact, tends to earn less revenue than the others in practice.
-In addition, it usually violates the global daily ROI constraint seriously, thus it's an inferior strategy.
+In addition, it usually violates the global daily ROI constraint seriously, so it's an inferior strategy.
 
 Compared with the $DB_s$ who claims a linear relationship between bid price and $RPM$,
     the $ORTB$, derived from first price auction assumption, suggests a non-linear one.
@@ -776,8 +798,7 @@ While the daily ROI constraint is satisfied by both strategies,
     the $DB_s$ earns more revenue than the $ORTB$. As a result, the $DB_s$ is superior theoratically and practically.
 
 The $DB_m$, as an ensemble of four ad retrieval algorithms,
-    achieves the most revenue without violation of the daily ROI constraint,
-    thus becomes the best strategy.
+    achieves the most revenue without violation of the daily ROI constraint and becomes the best strategy.
 
 \section{Conclusions and Future Works}
 
@@ -814,9 +835,7 @@ In this circumstance, resolution of impressions and ads is extremely low and tie
 Here we give the detailed proof of the strong duality. We first prove that P $\le$ D by dualizing P.
 
 \begin{flalign*}
-    P = & - \min\limits_{\substack{\sx,\sV \\ \agapresourceconstraint \\ \assignmentconstraint \\ \sx \ge 0 }} \{ - \sumij \sx \sV \} &&
-\end{flalign*}
-\begin{flalign*}
+    P = & - \min\limits_{\substack{\sx,\sV \\ \agapresourceconstraint \\ \assignmentconstraint \\ \sx \ge 0 }} \{ - \sumij \sx \sV \} \\
       = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\slambda \ge 0} \{ - \sumij \sx \sV \\
         & + \sumk \salpha [\sumij \sx \sW(\sV) - \sB] \\
         & + \sumi \sbeta (\sumj \sx - 1) + \sumij \slambda(-\sx) \} \} \\
@@ -889,7 +908,7 @@ At last, we prove that d = dd by dualizing the inner step of d with the outer st
       = & dd &&
 \end{flalign*}
 
-It's obvious that DD and dd are of the same form, thus DD = dd. As a result, we have P = D and strong duality holds.
+It's obvious that DD and dd are of the same form, so DD = dd. As a result, we have P = D and strong duality holds.
 
 \bibliographystyle{plain}
 \bibliography{DSP}
