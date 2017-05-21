@@ -1,5 +1,6 @@
 \documentclass[sigconf]{acmart}
 
+\usepackage{booktabs} % For formal tables
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -9,9 +10,32 @@
 \usepackage{multirow}
 \usepackage{mathrsfs}
 \usepackage{bbm}
-\usepackage{cite}
 \usepackage[linesnumbered,ruled]{algorithm2e}
 \allowdisplaybreaks
+
+% Copyright
+%\setcopyright{none}
+%\setcopyright{acmcopyright}
+%\setcopyright{acmlicensed}
+\setcopyright{rightsretained}
+%\setcopyright{usgov}
+%\setcopyright{usgovmixed}
+%\setcopyright{cagov}
+%\setcopyright{cagovmixed}
+
+
+% DOI
+\acmDOI{10.475/123_4}
+
+% ISBN
+\acmISBN{123-4567-24-567/08/06}
+
+%Conference
+\acmConference[CIKM'17]{ACM International Conference on Information and Knowledge Management}{November 2017}{Pan Pacific, Singapore}
+\acmYear{2017}
+\copyrightyear{2017}
+
+%\acmPrice{15.00}
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 
@@ -84,6 +108,8 @@ To the best of our knowledge, our solution is the first DSP bidding framework
 Our strategy is verified through simulation and outperforms state-of-the-art strategies in real application.
 \end{abstract}
 
+\keywords{Computational Advertising, Real Time Bidding, Demand Side Platform, Bidding Strategy}
+
 \maketitle
 
 \section{Introduction}
@@ -115,7 +141,7 @@ For performance consideration, both DSP and advertisers might set bounds for KPI
 DSP is supposed to distribute the bidding opportunities to ads in its inventory, maximizing its gain under above constraints.
 
 For example, some DSPs are willing to maximize their profit under budget constraints in PFI mode,
-    where profit is defined as the total revenue earned from advertisers minus total bidding cost payed to AdX.
+    where the profit is defined as the total revenue earned from advertisers minus total bidding cost payed to AdX.
 Others prefer to maximize commission under both budget and average CPC(Cost Per Click) constraints in PFU mode,
     in which the total bidding cost divided by the total number of clicks must be within predefined threshold.
 
@@ -130,17 +156,17 @@ To the best of our knowledge, our solution is the first DSP bidding framework
     to the multiple ads scenario with various objectives and constraints.
 These are the main contributions of this document.
 
-%This document is organized as follows.
-%In section 1, the background knowledge about RTB and DSP are introduced.
-%In section 2, previous related works are described.
-%In section 3, DSP problem is formalized as an mathematical optimization problem.
-%In section 4, augmented GAP is studied with proof of its strong duality and resulting strategy.
-%In section 5, the theory of augmented GAP is applied to DSP problem and two numeric optimization methods are discussed.
-%In section 6, we verify our strategy through simulation.
-%In section 7, we deploy our strategy in real application and experiment results are analyzed.
-%In section 8, conclusions are drawn and future works are discussed.
+This document is organized as follows.
+In section 1, the background knowledge about RTB and DSP are introduced.
+In section 2, previous related works are described.
+In section 3, DSP problem is formalized as an mathematical optimization problem.
+In section 4, augmented GAP is studied with proof of its strong duality and resulting strategy.
+In section 5, the theory of augmented GAP is applied to DSP problem and two numeric optimization methods are discussed.
+In section 6, we verify our strategy through simulation.
+In section 7, we deploy our strategy in real application and experiment results are analyzed.
+In section 8, conclusions are drawn and future works are discussed.
 
-\section{Related Work}
+\section{Related Works}
 
 The linear bidding strategy proposed in \cite{M6D} is a heuristic method and,
     given base price, bids in propotion to the relative quality of impression.
@@ -150,12 +176,12 @@ Winning rate is explicitly modeled as a function of bid price, and,
     to find the analytical solution, this function must be of specific forms.
 Both win rate and winning price are estimated in \cite{XiangLi2014}, and the corresponding bidding strategy is provided.
 While all above researches consider only one campaign,
-    \cite{WeinanZhang2015} extends \cite{WeinanZhang2014} to bidding strategy for multiple campaigns.
+    \cite{WeinanZhang2015} extends \cite{WeinanZhang2014} and proposes bidding strategy for multiple campaigns.
 \cite{Joint2016} studies the joint optimization of multiple objectives with priorities.
 \cite{Lift2016} argues that the bid price should be decided
     based on the performance lift rather than absolute performance value.
 Risk management of RTB is discussed and risk-aware bidding strategy is proposed in \cite{Risk2017}.
-By modeling the state transition via auction competition,
+By modeling the state transition of auction competition,
     the optimal bidding policy is derived in \cite{Reinforce2017} based on reinforcement learning theory.
 
 The probability estimation of interested feedbacks plays a central role in performance based advertising.
@@ -163,7 +189,7 @@ CTR prediction is of great importance and extensively studied by researchers.
 FTRL-Proximal, an online learning algorithm, is proposed in \cite{Google2013} and sparse model is learned for CTR prediction.
 In \cite{Facebook2014}, a hybrid model which combines decision trees with logistic regression
     outperforms either of these methods on their own.
-In \cite{FFM2016}, field-aware factorization machines are applied to predict CTR.
+In \cite{FFM2016}, field-aware factorization machines are used to predict CTR.
 Compared with clicks, the conversions are even more rare and harder to predict.
 To tackle the data sparseness, a hierarchical method is proposed in \cite{CVR} for CVR(Conversion Rate) prediction.
 Feedbacks are usually delayed in practice and \cite{DelayedFeedback} tries to
@@ -216,14 +242,15 @@ $\sB$ is a resource limit constant
 
 \subsection{Second Price Auction}
 
-Most AdX adopts sealed second price auction mechanism.
+Most AdXes adopt sealed second price auction mechanism.
 The DSP with the highest bid price wins and pays the second highest bid price.
 For example, three DSPs bid 2\$, 1\$, 3\$ respectively, so the third DSP wins and pays 2\$. 
 
 Due to the dynamic nature of auction, the outcome is random.
-To model this uncertainty, we define $p_i(x)$ as
-   the distribution of the highest $BidPrice$ of all other DSPs for $Impression_i$ with support $[0, \infty)$.
-Then we have $WinProb_i(bp)=\int_0^{bp} p_i(x) \mathrm{d} x$, and $WinPrice_i(bp)=\int_0^{bp} x p_i(x) \mathrm{d} x$.
+To model this uncertainty, $p_i(x)$ is defined as
+    the distribution of the highest $BidPrice$ of all other DSPs for $Impression_i$ with support $[0, \infty)$.
+Then the expected win probability and win price could be defined as
+    $WinProb_i(bp)=\int_0^{bp} p_i(x) \mathrm{d} x$ and $WinPrice_i(bp)=\int_0^{bp} x p_i(x) \mathrm{d} x$ respectively.
 
 It's worth to mention that we make little, if any, assumption about the form of $p_i(x)$.
 In practice, $p_i(x)$ could be modeled either explicitly with method proposed by \cite{Wu2015} or inexplicitly when it's not mandatory.
@@ -246,7 +273,7 @@ Given $\forall f \in \uff$ with $\pprob > 0$ and $\pprice < 0$, we have $\argmax
 \end{theorem}
 
 \begin{theorem}
-Given $\forall f,g \in \uff$ with common $p(x)$,
+Given $\forall g,h \in \uff$ with common $p(x)$,
     we have $\frac{d^2h}{d^2g} = \frac{\pprob^g \pprice^h - \pprice^g \pprob^h}{(\pprob^g + \pprice^g bp)^3 p(bp)}$.
 \end{theorem}
 
@@ -256,8 +283,8 @@ There're three practical objectives in Table \ref{TableObjectives}.
 In PFI mode, DSP could maximize either revenue(gross income) or profit(net income).
 In PFU mode, DSP would maximize the commission. 
 
-Taking maximizing profit in PFI mode for example, the profit is defined as $\sV(bp)=\sRPM{}WinProb_i(bp)-WinPrice_i(bp)$,
-    and we have $\pprob=\sRPM$ and $\pprice=-1$.
+Take maximizing profit in PFI mode for example.
+The profit is defined as $\sV(bp)=\sRPM{}WinProb_i(bp)-WinPrice_i(bp)$, so we have $\pprob=\sRPM$ and $\pprice=-1$.
 
 \begin{table}
 \caption{Practical Objectives\label{TableObjectives}}
@@ -287,8 +314,9 @@ In both modes, advertisers must set their budget.
 Constraints like budget could be expressed in standard form naturally.
 Others, though not so obvious at the first glance, could be rewritten into standard form as well.
 
-Taking budget upper bound 2 in PFU mode for example, the budget consumption is defined as $\sV(bp)=WinPrice_i(bp)$,
-    and we have $\pprob=0$ and $\pprice=1$ and the total consumption must not exceed $\sB=Budget^{(k)}$.
+Take budget upper bound 2 in PFU mode for example.
+The budget consumption is defined as $\sV(bp)=WinPrice_i(bp)$,
+    so we have $\pprob=0$ and $\pprice=1$ and the total consumption must not exceed $\sB=Budget^{(k)}$.
 
 \begin{table}
 \caption{Practical Constraints\label{TableConstraints}}
@@ -380,7 +408,7 @@ If $W(V)$ is convex function of $V$, strong duality holds.
 \end{theorem}
 
 \begin{proof}
-Several auxiliary problems are dened in Table \ref{TableAuxiliaryProblems}.
+Several auxiliary problems are defined in Table \ref{TableAuxiliaryProblems}.
 P is the primal and could be splited into 2 nested steps.
 The inner step, given $\sx$, maximizes objective with $\sV$ as variables.
 The outer step, maximizes objective with $\sx$ as variables.
@@ -415,7 +443,7 @@ As a result, P = D, strong duality holds.
 
 \subsection{Dual Based Strategy}
 
-With strong duality satisfied, several important properties are claimed about the optimal solution of both primal and dual problem,
+With strong duality satisfied, several important properties are claimed about the optimal solution of both primal and dual problems,
     based on which we propose the dual based strategy.
 
 \begin{theorem}
@@ -494,7 +522,7 @@ Ties could be broken by random or heuristics.
 \subsection{Dual}
 
 We define corresponding basic functions and show the dual of DSP problem based on them.
-It's worth to notice that $\sF$ is linear combination of $\sV(bp)$ and $\sW(bp)$ from $\uff$
+It's worth to notice that $\sF$ is linear combination of $\sV(bp)$ and $\sW(bp)$ from $\uff$.
 As a result, it must belong to $\uff$ too.
 
 \begin{definition}
@@ -593,9 +621,9 @@ Three mocked ads are shown in Table \ref{TableMockedAds},
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-\mr{2}{Ad}     & \mr{2}{Mode}  & \mr{2}{Objective}  & \mc{2}{Constraint} \\
-\cline{4-5}
-               &               &                    & $k$   & Type \\
+\mr{2}{Ad}     & \mr{2}{Mode}  & Objective  & \mc{2}{Constraint} \\
+\cline{3-5}
+               &               & Type               & $k$   & Type \\
 \hline
 $Ad_1$         & PFI           & Profit             & 1     & Budget \\
 \hline
@@ -630,7 +658,7 @@ $Case_4$   & $\{Ad_j|j \in \{1,2,3\}\}$         & 15 \\
 
 In $Case_1$, $Ad_1$ is in PFI mode with budget constraint, and DSP prefers to maximize its profit.
 In $Case_2$, $Ad_2$ is in PFI mode with ROI constraint, and DSP prefers to maximize its revenue.
-In $Case_3$, $Ad_3$ is in PFU mode with budget and average CPS constraint, and DSP prefers to maximize its commission.
+In $Case_3$, $Ad_3$ is in PFU mode with budget and average CPS constraints, and DSP prefers to maximize its commission.
 $Case_4$ is a hybrid case with all above ads in the inventory.
 
 Once the configurations are ready, cases are solved by SGD developed from our theory and brute force MC(Monte Carlo).
@@ -788,7 +816,7 @@ For each group, the daily statistics of four metrics are plotted in Figure \ref{
 \end{figure}
 
 The $LIN$, though with theoratical optimal intact, tends to earn less revenue than the others in practice.
-In addition, it usually violates the global daily ROI constraint seriously, so it's an inferior strategy.
+In addition, it usually violates the daily ROI constraint seriously, so it's an inferior strategy.
 
 Compared with the $DB_s$ who claims a linear relationship between bid price and $RPM$,
     the $ORTB$, derived from first price auction assumption, suggests a non-linear one.
@@ -811,7 +839,7 @@ Three problems remain unsolved and deserve further study.
 First, is there a better way to solve $\valpha$ of large scale in dynamic environment?
 On the one hand, in a typical DSP, there will be millions of constraints shared by similar number of ads.
 Each of the constraints deserves a $\alpha$, which makes the vector $\valpha$ very large.
-On the other hand, billions of impressions are broadcasted by AdX per day and bid by hundreds of DSPs simultaneously.
+On the other hand, billions of impressions are broadcasted by AdX every day and bid by hundreds of DSPs simultaneously.
 The bidding strategies are interactively adjusted by DSPs and the inventories are dynamically updated by advertisers,
     which makes the bidding landscape unstable.
 Both properties make the optimal $\valpha$ relatively hard to solve.
@@ -824,8 +852,9 @@ At the other extreme, all ads are represented by the only logical ad, while the 
 A proper compromise combined with efficient indexing tricks will accelerate both processes by orders of magnitude.
 
 Third, how to optimally break ties when they are common and critical in certain applications?
-Taking an imaginary senario for example, all ads are in PFI mode with budget constraints, while DSP is willing to maximize its profit.
-Besides, these ads share the universal constant RPM and are targeted respectively to sets of impressions which are overlaped.
+Take an imaginary senario for example.
+All ads are in PFI mode with budget constraints, while DSP is willing to maximize its profit.
+Besides, these ads share the universal constant RPM and are targeted respectively to overlaped sets of impressions.
 In this circumstance, resolution of impressions and ads is extremely low and ties are very prevalent.
 
 \appendix
@@ -910,7 +939,7 @@ At last, we prove that d = dd by dualizing the inner step of d with the outer st
 
 It's obvious that DD and dd are of the same form, so DD = dd. As a result, we have P = D and strong duality holds.
 
-\bibliographystyle{plain}
+\bibliographystyle{ACM-Reference-Format}
 \bibliography{DSP}
 
 \end{document}
