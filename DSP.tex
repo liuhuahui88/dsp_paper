@@ -51,7 +51,7 @@
 \newcommand{\sW}{W_{i,j}^{(k)}}
 \newcommand{\sB}{B^{(k)}}
 
-\newcommand{\sRPM}{RPM_{i,j}}
+\newcommand{\sCPI}{CPI_{i,j}}
 
 \newcommand{\salpha}{\alpha^{(k)}}
 \newcommand{\stheta}{\theta^{(k)}}
@@ -79,8 +79,8 @@
 \newcommand{\scoreconstraint}{\sbeta \ge \sS(\vec{\alpha})}
 
 \newcommand{\linbp}{}
-\newcommand{\ortbbp}{\sqrt{\frac{cRPM_i}{ROI}(1+\frac{1}{\lambda})+c^2}-c}
-\newcommand{\dbbp}{\frac{\sRPM}{ROI}(1+\frac{1}{\alpha})}
+\newcommand{\ortbbp}{\sqrt{\frac{cCPI_i}{ROI}(1+\frac{1}{\lambda})+c^2}-c}
+\newcommand{\dbbp}{\frac{\sCPI}{ROI}(1+\frac{1}{\alpha})}
 
 \newcommand{\liniter}{bp_i^{'}=\frac{ROI_i(bp_i)}{ROI}bp_i}
 \newcommand{\ortbiter}{\lambda^{'}=\frac{ROI}{ROI(\lambda)}\lambda}
@@ -95,17 +95,19 @@
 
 \begin{abstract}
 In recent years, RTB(Real Time Bidding) becomes a popular online advertisement trading method.
-During the auction, each DSP is supposed to evaluate this opportunity and respond with an ad and corresponding bid price.
-Generally speaking, this is a kind of assginment problem for DSP.
-However, unlike traditional one, this assginment problem has bid price as additional variable.
-It's essential to find an optimal ad selection and bid price determination strategy.
-In this document, two major steps are taken to tackle it.
-First, the augmented GAP(Generalized Assignment Problem) is proposed and a general bidding strategy is correspondingly provided.
-Second, we show that DSP problem is a special case of the augmented GAP and the general bidding strategy applies.
-To the best of our knowledge, our solution is the first DSP bidding framework
-    that is derived from strict second price auction assumption
-    and is generally applicable to the multiple ads scenario with various objectives and constraints.
+During the auction, each DSP(Demand Side Platform) is supposed to
+    evaluate current opportunity and respond with an ad and corresponding bid price.
+It's essential for DSP to find an optimal ad selection and bid price determination strategy
+    which maximizes revenue, profit or performance under budget and ROI(Return On Investment) constraints
+    in PFI(Pay For Impression) or PFU(Pay For Usage) mode.
+We solve this problem by
+    1) formalizing the DSP problem as a constrained optimization problem,
+    2) proposing the augmented GAP(Generalized Assignment Problem) with general solution,
+    3) claiming the DSP problem is a special case of the augmented GAP and deriving specialized strategy.
 Our strategy is verified through simulation and outperforms state-of-the-art strategies in real application.
+To the best of our knowledge, our solution is the first dual based DSP bidding framework
+    that is derived from strict second price auction assumption and
+    generally applicable to the multiple ads scenario with various objectives and constraints.
 \end{abstract}
 
 \keywords{Computational Advertising, Real Time Bidding, Demand Side Platform, Bidding Strategy}
@@ -122,7 +124,7 @@ AdX, an online advertisement exchange, docks SSPs and DSPs and holds auctions.
 
 In a typical scenario, an audience visits one of the SSP's websites, then the AdX is informed and an auction is initiated.
 The AdX broadcasts bid request to DSPs and waits for a short time(e.g. 100ms).
-Each DSP is supposed to evaluate this opportunity and respond with an ad and corresponding bid price.
+Each DSP is supposed to evaluate current opportunity and respond with an ad and corresponding bid price.
 The AdX gathers bid responses arriving before deadline and determines the winner and its cost.
 Finally, the AdX notifies the SSP about the auction result and the SSP serves the winner's ad to the audience.
 
@@ -132,40 +134,62 @@ Finally, the AdX notifies the SSP about the auction result and the SSP serves th
 \caption{Real Time Bidding}
 \end{figure}
 
-DSP usually provides two payment method for advertisers.
-In PFI(Pay For Impression) mode, the advertiser sets RPM(Revenue Per Mili) and pays RPM for every 1000 impressions.
-In PFU(Pay For Usage) mode, the advertiser sets commission rate and pays total bidding cost plus a fraction of it as commission.
+There're two popular payment modes for advertisers
+\begin{enumerate}
+\item \textbf{PFI}(Pay For Impression): the advertiser sets a CPI(Cost Per Impression)
+    and pays DSP the CPI(e.g. 0.001\$) for each impression.
+\item \textbf{PFU}(Pay For Usage): the advertiser sets a commission rate(e.g. 0.1)
+    and pays DSP the total bidding cost(e.g. 100\$) plus the fraction of it as commission(e.g. 0.1*100\$=10\$).
+\end{enumerate}
 
-Advertisers must set budgets for a certain period of time.
-For performance consideration, both DSP and advertisers might set bounds for KPIs of interest.
-DSP is supposed to distribute the bidding opportunities to ads in its inventory, maximizing its gain under above constraints.
+DSP is interested in optimizing one of the following objectives
+\begin{enumerate}
+\item \textbf{Revenue}(i.e. gross income): the total amount of money(e.g. 50\$) earned from advertisers
+                                           through either payment modes mentioned above.
+\item \textbf{Profit}(i.e. net income): the revenue(e.g. 50\$) minus the total bidding cost(e.g. 40\$) payed to AdX.
+\item \textbf{Performance}: the total number of impressions or clicks delivered to advertisers.
+\end{enumerate}
 
-For example, some DSPs are willing to maximize their profit under budget constraints in PFI mode,
-    where the profit is defined as the total revenue earned from advertisers minus total bidding cost payed to AdX.
-Others prefer to maximize commission under both budget and average CPC(Cost Per Click) constraints in PFU mode,
-    in which the total bidding cost divided by the total number of clicks must be within predefined threshold.
+During the optimization, several constraints must be satisfied
+\begin{enumerate}
+\item \textbf{Budget Upper Bound}: the maximum amount of money the advertiser is willing to spend for a certain period of time
+  (e.g. 100\$ per day).
+\item \textbf{ROI Lower Bound}: the minimum value of ROI(Return On Investment)
+  which is defined as, for DSP, the money earned from advertisers(i.e. revenue) over the bidding cost payed to AdX
+  (e.g. ROI is 1.1 when DSP earns 110\$ and pays 100\$)
+  and, for advertiser, the number of impressions or clicks(i.e. performance) over the money spent in DSP
+  (e.g. ROI is 0.8 when advertiser spends 100\$ for 80 clicks).
+\end{enumerate}
 
-Generally speaking, this is a kind of assginment problem for DSP.
-However, unlike traditional one, this assginment problem has bid price as additional variable.
-It's essential to find an optimal ad selection and bid price determination strategy.
-In this document, two major steps are taken to tackle it.
-First, the augmented GAP(Generalized Assignment Problem) is proposed and a general bidding strategy is correspondingly provided.
-Second, we show that DSP problem is a special case of the augmented GAP and the general bidding strategy applies.
-To the best of our knowledge, our solution is the first DSP bidding framework
-    that is derived from strict second price auction assumption and is generally applicable
-    to the multiple ads scenario with various objectives and constraints.
+It's essential for DSP to find an optimal ad selection and bid price determination strategy
+    which maximizes revenue, profit or performance under budget and ROI constraints in PFI or PFU mode.
+We solve this problem by
+\begin{enumerate}
+\item formalizing the DSP problem as a constrained optimization problem(Section \ref{Formalization}),
+\item proposing the augmented GAP(Generalized Assignment Problem) with general solution(Section \ref{AugmentedGAP}),
+\item claiming the DSP problem is a special case of the augmented GAP and deriving specialized strategy(Section \ref{Solution}).
+\end{enumerate}
+Our strategy is verified through simulation(Section \ref{Simulation}) and
+    outperforms state-of-the-art strategies in real application(Section \ref{Application}).
+To the best of our knowledge, our solution is the first dual based DSP bidding framework
+    that is derived from strict second price auction assumption and
+    generally applicable to the multiple ads scenario with various objectives and constraints.
 These are the main contributions of this document.
 
-This document is organized as follows.
-In section 1, the background knowledge about RTB and DSP are introduced.
-In section 2, previous related works are described.
-In section 3, DSP problem is formalized as an mathematical optimization problem.
-In section 4, augmented GAP is studied with proof of its strong duality and resulting strategy.
-In section 5, the theory of augmented GAP is applied to DSP problem and two numeric optimization methods are discussed.
-In section 6, we verify our strategy through simulation.
-In section 7, we deploy our strategy in real application and experiment results are analyzed.
-In section 8, conclusions are drawn and future works are discussed.
-
+Before further discussion, it's worth to mention several points about our problem configuration.
+First, in PFI mode, the advertiser usually prefers to set CPC(Cost Per Click) rather than CPI
+    and the DSP is supposed to transform CPC into CPI with predicted CTR(Click Through Rate).
+However, CTR prediction is beyond the scope of this document and,
+    without loss of generality, we assume that the CPI, if not specifically mentioned,
+    is always explicitly provided in the rest of our discussion.
+Second, in PFI mode, if all advertisers choose to set the same CPI or CPC,
+    since the number of impressions or clicks is now proportional to the revenue,
+    maximizing the revenue is equivalent to maximizing the performance.
+Third, in PFU mode, the revenue is the total bidding cost plus the commission by definition,
+    while the profit is exactly the commission which is proportional to the revenue.
+As a result, given the fixed global commission rate, maximumization of revenue and profit are equivalent.
+At last, the ROI lower bound for advertiser could also be interpreted as the averaged CPI or CPC upper bound
+    which might be more familiar to some readers.
 \section{Related Works}
 
 The linear bidding strategy proposed in \cite{M6D} is a heuristic method and,
@@ -205,7 +229,7 @@ Our work is mainly inspired by \cite{YeChen2011} in which compact allocation str
 Sealed second price auction is studied in \cite{SSPA1961}.
 After all, DSP problem is a sort of online matching problem and \cite{Mehta} is an informative survey of this area.
 
-\section{Formalization}
+\section{Formalization} \label{Formalization}
 
 \subsection{Primal}
 
@@ -284,7 +308,7 @@ In PFI mode, DSP could maximize either revenue(gross income) or profit(net incom
 In PFU mode, DSP would maximize the commission. 
 
 Take maximizing profit in PFI mode for example.
-The profit is defined as $\sV(bp)=\sRPM{}WinProb_i(bp)-WinPrice_i(bp)$, so we have $\pprob=\sRPM$ and $\pprice=-1$.
+The profit is defined as $\sV(bp)=\sCPI{}WinProb_i(bp)-WinPrice_i(bp)$, so we have $\pprob=\sCPI$ and $\pprice=-1$.
 
 \begin{table}
 \caption{Practical Objectives\label{TableObjectives}}
@@ -295,9 +319,9 @@ The profit is defined as $\sV(bp)=\sRPM{}WinProb_i(bp)-WinPrice_i(bp)$, so we ha
 \cline{3-4}
                &                    & $\pprob$   & $\pprice$ \\
 \hline
-\mr{2}{PFI}    & Revenue            & $\sRPM$    & 0 \\
+\mr{2}{PFI}    & Revenue            & $\sCPI$    & 0 \\
 \cline{2-4}
-               & Profit             & $\sRPM$    & -1 \\
+               & Profit             & $\sCPI$    & -1 \\
 \hline
 PFU            & Commission         & 0          & $Rate_j$ \\
 \hline
@@ -308,8 +332,8 @@ PFU            & Commission         & 0          & $Rate_j$ \\
 \subsection{Constraints}
 
 There're five practical constraints in Table \ref{TableConstraints}.
-In PFI mode, DSP could set lower bound for ROI(Return on Investment).
-In PFU mode, advertisers could set upper bound for CPS(Cost Per Show) and CPC.
+In PFI mode, DSP could set lower bound for ROI.
+In PFU mode, advertisers could set upper bound for CPI and CPC.
 In both modes, advertisers must set their budget.
 Constraints like budget could be expressed in standard form naturally.
 Others, though not so obvious at the first glance, could be rewritten into standard form as well.
@@ -327,13 +351,13 @@ The budget consumption is defined as $\sV(bp)=WinPrice_i(bp)$,
 \cline{3-4}
              &              & $\pprob$              & $\pprice$      & \\
 \hline
-\mr{2}{PFI}  & Budget 1     & $\sRPM$               & 0              & $Budget^{(k)}$ \\
+\mr{2}{PFI}  & Budget 1     & $\sCPI$               & 0              & $Budget^{(k)}$ \\
 \cline{2-5}
-             & ROI          & $-\sRPM$              & $ROI^{(k)}$    & 0 \\
+             & ROI          & $-\sCPI$              & $ROI^{(k)}$    & 0 \\
 \hline
 \mr{3}{PFU}  & Budget 2     & 0                     & 1              & $Budget^{(k)}$ \\
 \cline{2-5}
-             & Average CPS  & $-CPS^{(k)}$          & 1              & 0 \\
+             & Average CPI  & $-CPI^{(k)}$          & 1              & 0 \\
 \cline{2-5}
              & Average CPC  & $-CPC^{(k)}CTR_{i,j}$ & 1              & 0 \\
 \hline
@@ -341,7 +365,7 @@ The budget consumption is defined as $\sV(bp)=WinPrice_i(bp)$,
 \end{center}
 \end{table}
 
-\section{Augmented GAP}
+\section{Augmented GAP} \label{AugmentedGAP}
 
 \subsection{Primal}
 
@@ -517,7 +541,7 @@ Ties could be broken by random or heuristics.
 }
 \end{algorithm}
 
-\section{Solution}
+\section{Solution} \label{Solution}
 
 \subsection{Dual}
 
@@ -561,7 +585,7 @@ In addition, ad is usually subjected to very limited number of constraints, whic
 
 In certain applications, $Q_{i,j}$ is the same for given $i$ and all $j$, then we have $j^* = \argmax\limits_j \sbp^*$.
 For example, when maximizing profit under budget constraint in PFI mode,
-    we have $\sF(bp) = \int_0^{bp} [(1-\salpha)\sRPM-x]p_i(x)dx$ and $Q_{i,j}$ is always 1.
+    we have $\sF(bp) = \int_0^{bp} [(1-\salpha)\sCPI-x]p_i(x)dx$ and $Q_{i,j}$ is always 1.
 By disposing of $p_i(x)$ completely from deciding process, it not only simplifies the computation,
     but also encourages $p_i(x)$ free training process.
 
@@ -584,7 +608,7 @@ By disposing of $p_i(x)$ completely from deciding process, it not only simplifie
 }
 \end{algorithm}
 
-\subsection{Numeric Opmitization}
+\subsection{Numeric Optimitization}
 
 By fixing $\valpha$ in the dual problem, $\sbeta^*$ could be calculated independently,
     that is $\sbeta^* = \sbeta(\valpha) = \max \{ 0, \sS(\valpha) \forall j \}$.
@@ -599,13 +623,13 @@ Through executing our strategy in production environment, the randomized version
     and the gradients could be approximated with these feedbacks.
 This optimization method is $p_i(x)$ free and much easier to implement.
 
-\section{Simulation}
+\section{Simulation} \label{Simulation}
 
 \subsection{Methodology}
 
 To eliminate the uncertainty, our strategy is verified through simulation.
 For simplicity, $p(x)$ is assumed to be a hill shaped distribution as depicted in Figure \ref{Hill} with its summit as the only parameter.
-To mock the impressions, several pairs of $p(x)$ and $RPM$ are drawn randomly.
+To mock the impressions, several pairs of $p(x)$ and $CPI$ are drawn randomly.
 Three mocked ads are shown in Table \ref{TableMockedAds},
     based on which four simulated cases are proposed in Table \ref{TableSimulatedCases},
     three for single ad and one for multiple ads.
@@ -631,7 +655,7 @@ $Ad_2$         & PFI           & Revenue            & 2     & ROI \\
 \hline
 \mr{2}{$Ad_3$} & \mr{2}{PFU}   & \mr{2}{Commission} & 3     & Budget \\
 \cline{4-5}
-               &               &                    & 4     & Average CPS \\
+               &               &                    & 4     & Average CPI \\
 \hline
 \end{tabular}
 \end{center}
@@ -658,7 +682,7 @@ $Case_4$   & $\{Ad_j|j \in \{1,2,3\}\}$         & 15 \\
 
 In $Case_1$, $Ad_1$ is in PFI mode with budget constraint, and DSP prefers to maximize its profit.
 In $Case_2$, $Ad_2$ is in PFI mode with ROI constraint, and DSP prefers to maximize its revenue.
-In $Case_3$, $Ad_3$ is in PFU mode with budget and average CPS constraints, and DSP prefers to maximize its commission.
+In $Case_3$, $Ad_3$ is in PFU mode with budget and average CPI constraints, and DSP prefers to maximize its commission.
 $Case_4$ is a hybrid case with all above ads in the inventory.
 
 Once the configurations are ready, cases are solved by SGD developed from our theory and brute force MC(Monte Carlo).
@@ -727,7 +751,7 @@ $Case_2$          & $Ad_2$         & 2     & 0.0000      & 0.0000          & 0.0
 \end{center}
 \end{table}
 
-\section{Application}
+\section{Application} \label{Application}
 
 \subsection{Scenario}
 
@@ -736,7 +760,7 @@ In our application, advertisers set budgets and pay for clicks, while DSP is wil
 There're so many ads in our inventory that it's impossible to go through each ad before auction deadline.
 Although these budgets are quite large totally, they are relatively small on average.
 
-With a well calibrated RPM predictor, the problem could be transformed equivalently into one in PFI mode.
+With a well calibrated CPI predictor, the problem could be transformed equivalently into one in PFI mode.
 And to meet the latency requirement, the whole deciding process is decomposed into two stages with so called logical ad.
 Logical ad should be seen as proxy of physical ads and binded with specific ad retrieval algorithm.
 In the first stage, DSP is supposed to make decisions among just a few logical ads and respond in time.
@@ -753,7 +777,7 @@ These algorithms are sorted by their historical performance in descending orders
 
 In summary, our problem could be approximately modeled as, given several logical ads with literally unlimited budget,
     maximizing revenue under global daily ROI constraint in PFI mode.
-According to our theory, we have $\sF(bp) = \int_0^{bp} [(1+\alpha)\sRPM - \alpha{}ROIx]p_i(x)dx$ and $\sbp=\dbbp$.
+According to our theory, we have $\sF(bp) = \int_0^{bp} [(1+\alpha)\sCPI - \alpha{}ROIx]p_i(x)dx$ and $\sbp=\dbbp$.
 Since there is only one resource constraint, superscript $k$ is omitted.
 As $Q_{i,j}$ is always $\alpha{}ROI$, no $p_i(x)$ is required in deciding process.
 To take full advantage of that, we adopt a simplified version of the $p_i(x)$ free optimization method, that is $\dbiter$.
@@ -795,7 +819,7 @@ $DB_{m}$ & $\{LogicalAd_j|j \in \{1,2,3,4\}\}$ &                    &           
 
 To eliminate potential bias, the experiment lasts for a whole ordinary week.
 Bidding opportunities are distributed to each group randomly with equal probability.
-For fairness, the same RPM predictor is shared by all groups.
+For fairness, the same CPI predictor is shared by all groups.
 The lower bound of global daily ROI is set to 3.5.
 
 Parameters are periodically adjusted with performance data collected since last update.
@@ -818,9 +842,9 @@ For each group, the daily statistics of four metrics are plotted in Figure \ref{
 The $LIN$, though with theoratical optimal intact, tends to earn less revenue than the others in practice.
 In addition, it usually violates the daily ROI constraint seriously, so it's an inferior strategy.
 
-Compared with the $DB_s$ who claims a linear relationship between bid price and $RPM$,
+Compared with the $DB_s$ who claims a linear relationship between bid price and $CPI$,
     the $ORTB$, derived from first price auction assumption, suggests a non-linear one.
-It is biased towards the impressions with low $RPM$ and against those with high $RPM$,
+It is biased towards the impressions with low $CPI$ and against those with high $CPI$,
     which leads to more impressions and lower averaged quality.
 While the daily ROI constraint is satisfied by both strategies,
     the $DB_s$ earns more revenue than the $ORTB$. As a result, the $DB_s$ is superior theoratically and practically.
@@ -854,7 +878,7 @@ A proper compromise combined with efficient indexing tricks will accelerate both
 Third, how to optimally break ties when they are common and critical in certain applications?
 Take an imaginary senario for example.
 All ads are in PFI mode with budget constraints, while DSP is willing to maximize its profit.
-Besides, these ads share the universal constant RPM and are targeted respectively to overlaped sets of impressions.
+Besides, these ads share the universal constant CPI and are targeted respectively to overlaped sets of impressions.
 In this circumstance, resolution of impressions and ads is extremely low and ties are very prevalent.
 
 \appendix
