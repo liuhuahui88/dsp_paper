@@ -103,7 +103,7 @@ It's essential for DSP to find an optimal ad selection and bid price determinati
 We solve this problem by
     1) formalizing the DSP problem as a constrained optimization problem,
     2) proposing the augmented GAP(Generalized Assignment Problem) with general solution,
-    3) claiming the DSP problem is a special case of the augmented GAP and deriving specialized strategy.
+    3) and demonstrating the DSP problem is a special case of the augmented GAP and deriving specialized strategy.
 Our strategy is verified through simulation and outperforms state-of-the-art strategies in real application.
 To the best of our knowledge, our solution is the first dual based DSP bidding framework
     that is derived from strict second price auction assumption and
@@ -114,7 +114,7 @@ To the best of our knowledge, our solution is the first dual based DSP bidding f
 
 \maketitle
 
-\section{Introduction}
+\section{Introduction} \label{Introduction}
 
 In recent years, RTB(Real Time Bidding) becomes a popular online advertisement trading method.
 There are three major roles in the market, namely SSP(Supply Side Platform), DSP(Demand Side Platform), and AdX(Ad Exchange).
@@ -145,7 +145,7 @@ There're two popular payment modes for advertisers
 DSP is interested in optimizing one of the following objectives
 \begin{enumerate}
 \item \textbf{Revenue}(i.e. gross income): the total amount of money(e.g. 50\$) earned from advertisers
-                                           through either payment modes mentioned above.
+                                           through either payment mode mentioned above.
 \item \textbf{Profit}(i.e. net income): the revenue(e.g. 50\$) minus the total bidding cost(e.g. 40\$) payed to AdX.
 \item \textbf{Performance}: the total number of impressions or clicks delivered to advertisers.
 \end{enumerate}
@@ -167,7 +167,7 @@ We solve this problem by
 \begin{enumerate}
 \item formalizing the DSP problem as a constrained optimization problem(Section \ref{Formalization}),
 \item proposing the augmented GAP(Generalized Assignment Problem) with general solution(Section \ref{AugmentedGAP}),
-\item claiming the DSP problem is a special case of the augmented GAP and deriving specialized strategy(Section \ref{Solution}).
+\item and demonstrating the DSP problem is a special case of the augmented GAP and deriving specialized strategy(Section \ref{Solution}).
 \end{enumerate}
 Our strategy is verified through simulation(Section \ref{Simulation}) and
     outperforms state-of-the-art strategies in real application(Section \ref{Application}).
@@ -235,11 +235,11 @@ After all, DSP problem is a sort of online matching problem and \cite{Mehta} is 
 
 The DSP problem could be formalized as follows.
 Once we bid $Impression$ with $Ad$, it results in gain $V$ and resource consumptions $W$, both of which are functions of $BidPrice$.
-Our total gain should be maximized under resource constraints.
+Our total gain should be maximized under resource constraints $B$ with $x$ and $BidPrice$ as variables.
 In addition, each $Impression$ should be distributed to no more than one $Ad$.
-In this formalization, $B$ is set by either advertiser or DSP.
-Family of $V$ and $W$ will be discussed shortly, while their parameter estimation is beyond the scope of this document.
 To conquer the computational hardness, indicator variable $x$ is relaxed from $\{0, 1\}$ to $[0, 1]$.
+Although most kinds of resources(e.g. budget) are sort of private and only accessible to very limited number of $Ad$s in practice,
+    we assume, without loss of generality, that all resources are public and shared by all $Ad$s in this formalization.
 
 \begin{alignat}{2}
     \max\limits_{\sx, \sbp} \quad & \sumij \sx \sV(\sbp) \quad    & {} \\
@@ -264,28 +264,63 @@ $\sW(bp)$ is the $k$-th resource consumption function of $BidPrice$ with support
 
 $\sB$ is a resource limit constant
 
-\subsection{Second Price Auction}
+The above formalization might seem too abstract to capture the details of
+    those concrete objectives and constraints discussed in Section \ref{Introduction}.
+To make things clearer, we
+\begin{enumerate}
+\item derive the expected winning probability and cost under second price auction assumption(Section \ref{SecondPriceAuction}),
+\item define the utility function family $\uff$ based on previous derivation(Section \ref{UtilityFunctionFamily}),
+\item and show how to systematically encode those concrete objectives and constraints into above formalization
+    by setting $B$ and choosing $V$ and $W$ from $\uff$(Section \ref{Objectives} \& \ref{Constraints}).
+\end{enumerate}
 
-Most AdXes adopt sealed second price auction mechanism.
-The DSP with the highest bid price wins and pays the second highest bid price.
+\subsection{Second Price Auction} \label{SecondPriceAuction}
+
+Most AdXes adopt sealed second price auction mechanism in which
+    the DSP with the highest bid price wins and pays the second highest bid price.
 For example, three DSPs bid 2\$, 1\$, 3\$ respectively, so the third DSP wins and pays 2\$. 
+Furthermore, only the winner has access to the second highest bid price
+    while the others observe nothing except the fact that they lose.
 
 Due to the dynamic nature of auction, the outcome is random.
 To model this uncertainty, $p_i(x)$ is defined as
-    the distribution of the highest $BidPrice$ of all other DSPs for $Impression_i$ with support $[0, \infty)$.
-Then the expected win probability and win price could be defined as
-    $WinProb_i(bp)=\int_0^{bp} p_i(x) \mathrm{d} x$ and $WinPrice_i(bp)=\int_0^{bp} x p_i(x) \mathrm{d} x$ respectively.
+    the distribution of the highest bid price among all other DSPs' bid prices for $Impression_i$ with support $[0, \infty)$.
+In another word, the most competitive DSP will bid $x$ for $Impression_i$ with probability $p_i(x) \mathrm{d} x$.
 
-It's worth to mention that we make little, if any, assumption about the form of $p_i(x)$.
-In practice, $p_i(x)$ could be modeled either explicitly with method proposed by \cite{Wu2015} or inexplicitly when it's not mandatory.
+To win $Impression_i$, our $BidPrice$ must be higher than $x$, but we will only pay $x$ eventually.
+Then the expected winning probability and cost for our DSP could be defined as follows.
+As our $BidPrice$ goes infinit, we'll win $Impression_i$ with probability 1 and our cost must be the mean of $p_i(x)$.
 
-\subsection{Utility Function Family}
+\begin{alignat}{2}
+WinProb_i(BidPrice)= & \int_0^{BidPrice} p_i(x) \mathrm{d} x \\
+Cost_i(BidPrice)=    & \int_0^{BidPrice} x p_i(x) \mathrm{d} x
+\end{alignat}
+
+It is the non-negativity property of $p_i(x)$ and the integral forms of $WinProb_i(BidPrice)$ and $Cost_i(BidPrice)$
+    which play a central role in our theory(Section \ref{UtilityFunctionFamily}).
+Except that, we make little, if any, assumption about the distribution family of $p_i(x)$.
+In addition, in some special cases, even explicit modeling of $p_i(x)$ is unnecessary
+    (Section \ref{DSPDualBasedStrategy} \& \ref{DSPNumericOptimization}), which simplifies the implementation of our strategy.
+
+Whenever it's mandatory, $p_i(x)$ could be modeled with method proposed by \cite{Wu2015}.
+We could pick a distribution family $p(x; \theta)$(e.g. log normal) with parameter $\theta$ and
+    learn a parameter predictor $\hat\theta(i)$ from historical bidding data which maximizes the following likelihood.
+
+\begin{alignat}{1}
+\prod\limits_{i \in Win} p_i(Cost_i; \hat\theta(i)) \prod\limits_{i \in Lose} \int_{BidPrice_i}^{\infty} p_i(x; \hat\theta(i)) \mathrm{d} x
+\end{alignat}
+
+The likelihood could be separated into two parts, i.e. one for the impressions we won and the other for those we lost.
+For any $Impression_i$ that we won, the bid price of the most competitive DSP must be equal to our $Cost_i$, which suggests the first part.
+Otherwise, the only thing for sure is that it must be higher than our $BidPrice_i$, which suggests the second part.
+
+\subsection{Utility Function Family} \label{UtilityFunctionFamily}
 
 The practical $V(bp)$ and $W(bp)$ in DSP problem come from a certain family
     which is defined here and whose properties are shown without proof.
 
 \begin{definition}
-$\uff = \{ \uf = \pprob WinProb(bp) + \pprice WinPrice(bp) = \int_0^{bp} (\pprob + \pprice x)p(x)dx \} $
+$\uff = \{ \uf = \pprob WinProb(bp) + \pprice Cost(bp) = \int_0^{bp} (\pprob + \pprice x)p(x)dx \} $
 \end{definition}
 
 \begin{theorem}
@@ -301,14 +336,14 @@ Given $\forall g,h \in \uff$ with common $p(x)$,
     we have $\frac{d^2h}{d^2g} = \frac{\pprob^g \pprice^h - \pprice^g \pprob^h}{(\pprob^g + \pprice^g bp)^3 p(bp)}$.
 \end{theorem}
 
-\subsection{Objectives}
+\subsection{Objectives} \label{Objectives}
 
 There're three practical objectives in Table \ref{TableObjectives}.
 In PFI mode, DSP could maximize either revenue(gross income) or profit(net income).
 In PFU mode, DSP would maximize the commission. 
 
 Take maximizing profit in PFI mode for example.
-The profit is defined as $\sV(bp)=\sCPI{}WinProb_i(bp)-WinPrice_i(bp)$, so we have $\pprob=\sCPI$ and $\pprice=-1$.
+The profit is defined as $\sV(bp)=\sCPI{}WinProb_i(bp)-Cost_i(bp)$, so we have $\pprob=\sCPI$ and $\pprice=-1$.
 
 \begin{table}
 \caption{Practical Objectives\label{TableObjectives}}
@@ -329,7 +364,7 @@ PFU            & Commission         & 0          & $Rate_j$ \\
 \end{center}
 \end{table}
 
-\subsection{Constraints}
+\subsection{Constraints} \label{Constraints}
 
 There're five practical constraints in Table \ref{TableConstraints}.
 In PFI mode, DSP could set lower bound for ROI.
@@ -339,7 +374,7 @@ Constraints like budget could be expressed in standard form naturally.
 Others, though not so obvious at the first glance, could be rewritten into standard form as well.
 
 Take budget upper bound 2 in PFU mode for example.
-The budget consumption is defined as $\sV(bp)=WinPrice_i(bp)$,
+The budget consumption is defined as $\sV(bp)=Cost_i(bp)$,
     so we have $\pprob=0$ and $\pprice=1$ and the total consumption must not exceed $\sB=Budget^{(k)}$.
 
 \begin{table}
@@ -577,7 +612,7 @@ Given the nice property of $\uff$, it's easy to check that, in practical cases, 
 In practical cases, $W(bp)$ is convex function of $V(bp)$, strong duality holds
 \end{theorem}
 
-\subsection{Dual Based Strategy}
+\subsection{Dual Based Strategy} \label{DSPDualBasedStrategy}
 
 Here's corresponding dual based strategy for DSP problem.
 Due to the nice property of $\uff$, $\sbp^*$ could be calculated easily without knowledge of $p_i(x)$.
@@ -608,7 +643,7 @@ By disposing of $p_i(x)$ completely from deciding process, it not only simplifie
 }
 \end{algorithm}
 
-\subsection{Numeric Optimitization}
+\subsection{Numeric Optimitization} \label{DSPNumericOptimization}
 
 By fixing $\valpha$ in the dual problem, $\sbeta^*$ could be calculated independently,
     that is $\sbeta^* = \sbeta(\valpha) = \max \{ 0, \sS(\valpha) \forall j \}$.
