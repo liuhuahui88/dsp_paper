@@ -42,34 +42,51 @@
 \newcommand{\sumi}{\sum\limits_i}
 \newcommand{\sumj}{\sum\limits_j}
 \newcommand{\sumk}{\sum\limits_k}
-\newcommand{\sumij}{\sum\limits_{i,j}}
+\newcommand{\sumij}{\sum\limits_{ij}}
 
-\newcommand{\sx}{x_{i,j}}
-\newcommand{\sbp}{bp_{i,j}}
+\newcommand{\sx}{x_{ij}}
+\newcommand{\sbp}{bp_{ij}}
 
-\newcommand{\sV}{V_{i,j}}
-\newcommand{\sW}{W_{i,j}^{(k)}}
+\newcommand{\sumijx}[1]{\sumij\sx{}#1}
+
+\newcommand{\sProb}{Prob_i(\sbp)}
+\newcommand{\sCost}{Cost_i(\sbp)}
+
+\newcommand{\sV}{V_{ij}}
+\newcommand{\sW}{W_{ij}^{(k)}}
 \newcommand{\sB}{B^{(k)}}
 
-\newcommand{\sCPI}{CPI_{i,j}}
+\newcommand{\sBudget}{Budget^{(k)}}
+\newcommand{\sROI}{ROI^{(k)}}
+
+
+\newcommand{\sCPP}{CPP_j}
+\newcommand{\sCR}{CR_j}
+\newcommand{\sPPI}{PPI_{ij}}
+\newcommand{\sCPI}{\sCPP\sPPI}
+
+\newcommand{\sRevenuePforP}{\sumijx{\sCPI\sProb}}
+\newcommand{\sRevenuePforU}{\sumijx{(1+\sCR)\sCost}}
+\newcommand{\sPerformance}{\sumijx{\sPPI\sProb}}
+\newcommand{\sBiddingCost}{\sumijx{\sCost}}
 
 \newcommand{\salpha}{\alpha^{(k)}}
 \newcommand{\stheta}{\theta^{(k)}}
 \newcommand{\sbeta}{\beta_i}
 \newcommand{\seta}{\eta_i}
-\newcommand{\slambda}{\lambda_{i,j}}
+\newcommand{\slambda}{\lambda_{ij}}
 
-\newcommand{\sF}{F_{i,j}}
-\newcommand{\sS}{S_{i,j}}
+\newcommand{\sF}{F_{ij}}
+\newcommand{\sS}{S_{ij}}
 \newcommand{\sG}{G_i}
 
 \newcommand{\valpha}{\vec{\alpha}}
 \newcommand{\vtheta}{\vec{\theta}}
 
 \newcommand{\pprob}{\psi_1}
-\newcommand{\pprice}{\psi_2}
+\newcommand{\pcost}{\psi_2}
 \newcommand{\uff}{\mathscr{F}}
-\newcommand{\uf}{f(bp; \pprob, \pprice, p(x))}
+\newcommand{\uf}{f(bp; \pprob, \pcost, p(x))}
 
 \newcommand{\dspresourceconstraint}{\sumij \sx \sW(\sbp) \le \sB}
 \newcommand{\agapresourceconstraint}{\sumij \sx \sW(\sV) \le \sB}
@@ -98,8 +115,8 @@ In recent years, RTB(Real Time Bidding) becomes a popular online advertisement t
 During the auction, each DSP(Demand Side Platform) is supposed to
     evaluate current opportunity and respond with an ad and corresponding bid price.
 It's essential for DSP to find an optimal ad selection and bid price determination strategy
-    which maximizes revenue, profit or performance under budget and ROI(Return On Investment) constraints
-    in PFI(Pay For Impression) or PFU(Pay For Usage) mode.
+    which maximizes revenue or performance under budget and ROI(Return On Investment) constraints
+    in P4P(Pay For Performance) or P4U(Pay For Usage) mode.
 We solve this problem by
     1) formalizing the DSP problem as a constrained optimization problem,
     2) proposing the augmented GAP(Generalized Assignment Problem) with general solution,
@@ -125,7 +142,7 @@ AdX, an online advertisement exchange, docks SSPs and DSPs and holds auctions.
 In a typical scenario, an audience visits one of the SSP's websites, then the AdX is informed and an auction is initiated.
 The AdX broadcasts bid request to DSPs and waits for a short time(e.g. 100ms).
 Each DSP is supposed to evaluate current opportunity and respond with an ad and corresponding bid price.
-The AdX gathers bid responses arriving before deadline and determines the winner and its cost.
+The AdX gathers bid responses arriving before deadline and determines the winner and its bidding cost.
 Finally, the AdX notifies the SSP about the auction result and the SSP serves the winner's ad to the audience.
 
 \begin{figure}[!h]
@@ -136,33 +153,31 @@ Finally, the AdX notifies the SSP about the auction result and the SSP serves th
 
 There're two popular payment modes for advertisers
 \begin{enumerate}
-\item \textbf{PFI}(Pay For Impression): the advertiser sets a CPI(Cost Per Impression)
-    and pays DSP the CPI(e.g. 0.001\$) for each impression.
-\item \textbf{PFU}(Pay For Usage): the advertiser sets a commission rate(e.g. 0.1)
-    and pays DSP the total bidding cost(e.g. 100\$) plus the fraction of it as commission(e.g. 0.1*100\$=10\$).
+\item \textbf{P4P}(Pay For Performance): the advertiser sets a CPP(Cost Per Performance)
+    and pays DSP the CPP times the units of performance delivered by DSP(e.g. 1\$/click*10clicks=10\$).
+\item \textbf{P4U}(Pay For Usage): the advertiser sets a CR(Commission Rate)
+    and pays DSP the total bidding cost plus the fraction of it as commission(e.g. (1+10\%)*100\$=110\$).
 \end{enumerate}
 
 DSP is interested in optimizing one of the following objectives
 \begin{enumerate}
-\item \textbf{Revenue}(i.e. gross income): the total amount of money(e.g. 50\$) earned from advertisers
-                                           through either payment mode mentioned above.
-\item \textbf{Profit}(i.e. net income): the revenue(e.g. 50\$) minus the total bidding cost(e.g. 40\$) payed to AdX.
-\item \textbf{Performance}: the total number of impressions or clicks delivered to advertisers.
+\item \textbf{Revenue}: the total amount of money(e.g. 50\$) earned from advertisers through either payment mode mentioned above.
+\item \textbf{Performance}: the total units of performance(e.g. 20 clicks) delivered to advertisers.
 \end{enumerate}
 
 During the optimization, several constraints must be satisfied
 \begin{enumerate}
-\item \textbf{Budget Upper Bound}: the maximum amount of money the advertiser is willing to spend for a certain period of time
-  (e.g. 100\$ per day).
-\item \textbf{ROI Lower Bound}: the minimum value of ROI(Return On Investment)
-  which is defined as, for DSP, the money earned from advertisers(i.e. revenue) over the bidding cost payed to AdX
-  (e.g. ROI is 1.1 when DSP earns 110\$ and pays 100\$)
-  and, for advertiser, the number of impressions or clicks(i.e. performance) over the money spent in DSP
-  (e.g. ROI is 0.8 when advertiser spends 100\$ for 80 clicks).
+\item \textbf{Budget Upper Bound}: the maximum amount of money the advertiser is willing to spend in DSP for a certain period of time
+  (e.g. 100\$/day).
+\item \textbf{ROI Lower Bound}: the minimum value of ROI(Return On Investment) which is defined as,
+  for DSP, the revenue earned from advertisers over the bidding cost payed to AdX
+  (e.g. DSP ROI is 1.1 when DSP earns 110\$ and pays 100\$) and,
+  for advertiser, the performance delivered by DSP over the money spent in DSP
+  (e.g. advertiser ROI is 0.8 when advertiser spends 100\$ for 80 clicks).
 \end{enumerate}
 
 It's essential for DSP to find an optimal ad selection and bid price determination strategy
-    which maximizes revenue, profit or performance under budget and ROI constraints in PFI or PFU mode.
+    which maximizes revenue or performance under budget and ROI constraints in P4P or P4U mode.
 We solve this problem by
 \begin{enumerate}
 \item formalizing the DSP problem as a constrained optimization problem(Section \ref{Formalization}),
@@ -177,18 +192,18 @@ To the best of our knowledge, our solution is the first dual based DSP bidding f
 These are the main contributions of this document.
 
 Before further discussion, it's worth to mention several points about our problem configuration.
-First, in PFI mode, the advertiser usually prefers to set CPC(Cost Per Click) rather than CPI
-    and the DSP is supposed to transform CPC into CPI with predicted CTR(Click Through Rate).
-However, CTR prediction is beyond the scope of this document and,
-    without loss of generality, we assume that the CPI, if not specifically mentioned,
-    is always explicitly provided in the rest of our discussion.
-Second, in PFI mode, if all advertisers choose to set the same CPI or CPC,
-    since the number of impressions or clicks is now proportional to the revenue,
-    maximizing the revenue is equivalent to maximizing the performance.
-Third, in PFU mode, the revenue is the total bidding cost plus the commission by definition,
-    while the profit is exactly the commission which is proportional to the revenue.
-As a result, given the fixed global commission rate, maximumization of revenue and profit are equivalent.
-At last, the ROI lower bound for advertiser could also be interpreted as the averaged CPI or CPC upper bound
+First, PPI(Performance Per Impression) is defined as the expected performance of one impression with certain ad
+    and its accurate prediction is of great importance in performance estimation.
+However, PPI prediction is beyond the scope of this document
+    and we assume that the PPI is always explicitly provided in the rest of our discussion.
+Second, it is assumed that all advertisers aggree to the same payment mode and performance metric
+    and DSP prefers to optimize a pure objective rather than a hybrid one.
+Third, the CPP in P4P mode or CR in P4U mode are set on the ad level,
+    i.e. the advertiser is able to set different CPP or CR for his ads.
+Fourth, the constraints are set on ad group level,
+    e.g. the budget might be shared by ads of the same advertiser
+    and DSP might be interested in controlling its global ROI.
+At last, the ROI lower bound for advertiser could also be interpreted as the CPP upper bound
     which might be more familiar to some readers.
 \section{Related Works}
 
@@ -256,7 +271,7 @@ $k$ is the index of $Constraint$
 
 $\sx$ is a relaxed variable, indicating whether $Impression_i$ should be given to $Ad_j$
 
-$\sbp$, short for $BidPrice_{i,j}$, is a variable
+$\sbp$, short for $BidPrice_{ij}$, is a variable
 
 $\sV(bp)$ is the gain function of $BidPrice$ with support $[0, \infty)$
 
@@ -265,13 +280,13 @@ $\sW(bp)$ is the $k$-th resource consumption function of $BidPrice$ with support
 $\sB$ is a resource limit constant
 
 The above formalization might seem too abstract to capture the details of
-    those concrete objectives and constraints discussed in Section \ref{Introduction}.
+    those practical objectives and constraints discussed in Section \ref{Introduction}.
 To make things clearer, we
 \begin{enumerate}
-\item derive the expected winning probability and cost under second price auction assumption(Section \ref{SecondPriceAuction}),
+\item derive the expected winning probability and bidding cost under second price auction assumption(Section \ref{SecondPriceAuction}),
 \item define the utility function family $\uff$ based on previous derivation(Section \ref{UtilityFunctionFamily}),
-\item and show how to systematically encode those concrete objectives and constraints into above formalization
-    by setting $B$ and choosing $V$ and $W$ from $\uff$(Section \ref{Objectives} \& \ref{Constraints}).
+\item and show how to systematically encode those practical objectives and constraints into above formalization
+    by setting $B$ and choosing $V(bp)$ and $W(bp)$ from $\uff$(Section \ref{ObjectivesAndConstraints}).
 \end{enumerate}
 
 \subsection{Second Price Auction} \label{SecondPriceAuction}
@@ -288,15 +303,15 @@ To model this uncertainty, $p_i(x)$ is defined as
 In another word, the most competitive DSP will bid $x$ for $Impression_i$ with probability $p_i(x) \mathrm{d} x$.
 
 To win $Impression_i$, our $BidPrice$ must be higher than $x$, but we will only pay $x$ eventually.
-Then the expected winning probability and cost for our DSP could be defined as follows.
-As our $BidPrice$ goes infinit, we'll win $Impression_i$ with probability 1 and our cost must be the mean of $p_i(x)$.
+Then the expected winning probability and bidding cost for our DSP could be defined as follows.
+As our $BidPrice$ goes infinit, we'll win $Impression_i$ with probability 1 and our bidding cost must be the mean of $p_i(x)$.
 
 \begin{alignat}{2}
-WinProb_i(BidPrice)= & \int_0^{BidPrice} p_i(x) \mathrm{d} x \\
-Cost_i(BidPrice)=    & \int_0^{BidPrice} x p_i(x) \mathrm{d} x
+Prob_i(BidPrice)= & \int_0^{BidPrice} p_i(x) \mathrm{d} x \\
+Cost_i(BidPrice)= & \int_0^{BidPrice} x p_i(x) \mathrm{d} x
 \end{alignat}
 
-It is the non-negativity property of $p_i(x)$ and the integral forms of $WinProb_i(BidPrice)$ and $Cost_i(BidPrice)$
+It is the non-negativity property of $p_i(x)$ and the integral forms of $Prob_i(BidPrice)$ and $Cost_i(BidPrice)$
     which play a central role in our theory(Section \ref{UtilityFunctionFamily}).
 Except that, we make little, if any, assumption about the distribution family of $p_i(x)$.
 In addition, in some special cases, even explicit modeling of $p_i(x)$ is unnecessary
@@ -320,7 +335,8 @@ The practical $V(bp)$ and $W(bp)$ in DSP problem come from a certain family
     which is defined here and whose properties are shown without proof.
 
 \begin{definition}
-$\uff = \{ \uf = \pprob WinProb(bp) + \pprice Cost(bp) = \int_0^{bp} (\pprob + \pprice x)p(x)dx \} $
+$\uff$ is the function family that $\forall f \in \uff$ is of the form
+    $ \uf = \int_0^{bp} (\pprob + \pcost x)p(x)dx = \pprob Prob(bp) + \pcost Cost(bp) $.
 \end{definition}
 
 \begin{theorem}
@@ -328,77 +344,85 @@ $\uff$ is closed under linear combinations.
 \end{theorem}
 
 \begin{theorem}
-Given $\forall f \in \uff$ with $\pprob > 0$ and $\pprice < 0$, we have $\argmax\limits_{bp} \uf = - \pprob / \pprice$.
+Given $\forall f \in \uff$ with $\pprob > 0$ and $\pcost < 0$, we have $\argmax\limits_{bp} \uf = - \pprob / \pcost$.
 \end{theorem}
 
 \begin{theorem}
 Given $\forall g,h \in \uff$ with common $p(x)$,
-    we have $\frac{d^2h}{d^2g} = \frac{\pprob^g \pprice^h - \pprice^g \pprob^h}{(\pprob^g + \pprice^g bp)^3 p(bp)}$.
+    we have $\frac{d^2h}{d^2g} = \frac{\pprob^g \pcost^h - \pcost^g \pprob^h}{(\pprob^g + \pcost^g bp)^3 p(bp)}$.
 \end{theorem}
 
-\subsection{Objectives} \label{Objectives}
+All above theorems are listed here for summarization purpose and will be referenced when actually used.
+It's safe to skip them for now and come back later.
 
-There're three practical objectives in Table \ref{TableObjectives}.
-In PFI mode, DSP could maximize either revenue(gross income) or profit(net income).
-In PFU mode, DSP would maximize the commission. 
+\subsection{Objectives and Constraints} \label{ObjectivesAndConstraints}
 
-Take maximizing profit in PFI mode for example.
-The profit is defined as $\sV(bp)=\sCPI{}WinProb_i(bp)-Cost_i(bp)$, so we have $\pprob=\sCPI$ and $\pprice=-1$.
+There're 4 practical objectives as listed in Table \ref{TableObjectives},
+    i.e. revenue and performance objectives in P4P and P4U modes.
+It's straightforward to encode those objectives into standard form by definition.
 
-\begin{table}
+\begin{table*}
 \caption{Practical Objectives\label{TableObjectives}}
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-\mr{2}{Mode}   & \mr{2}{Type}       & \mc{2}{$\sV(bp)$} \\
-\cline{3-4}
-               &                    & $\pprob$   & $\pprice$ \\
-\hline
-\mr{2}{PFI}    & Revenue            & $\sCPI$    & 0 \\
-\cline{2-4}
-               & Profit             & $\sCPI$    & -1 \\
-\hline
-PFU            & Commission         & 0          & $Rate_j$ \\
-\hline
-\end{tabular}
-\end{center}
-\end{table}
-
-\subsection{Constraints} \label{Constraints}
-
-There're five practical constraints in Table \ref{TableConstraints}.
-In PFI mode, DSP could set lower bound for ROI.
-In PFU mode, advertisers could set upper bound for CPI and CPC.
-In both modes, advertisers must set their budget.
-Constraints like budget could be expressed in standard form naturally.
-Others, though not so obvious at the first glance, could be rewritten into standard form as well.
-
-Take budget upper bound 2 in PFU mode for example.
-The budget consumption is defined as $\sV(bp)=Cost_i(bp)$,
-    so we have $\pprob=0$ and $\pprice=1$ and the total consumption must not exceed $\sB=Budget^{(k)}$.
-
-\begin{table}
-\caption{Practical Constraints\label{TableConstraints}}
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-\mr{2}{Mode} & \mr{2}{Type} & \mc{2}{$\sW(bp)$}                      & \mr{2}{$\sB$} \\
-\cline{3-4}
-             &              & $\pprob$              & $\pprice$      & \\
+\mr{2}{Mode}   & \mr{2}{Type}       & \mr{2}{Definition}  & \mc{2}{$\sV(bp)$} \\
+\cline{4-5}
+               &                    &                     & $\pprob$ & $\pcost$ \\
 \hline
-\mr{2}{PFI}  & Budget 1     & $\sCPI$               & 0              & $Budget^{(k)}$ \\
+\mr{2}{P4P}    & Revenue            & $\sRevenuePforP$    & $\sCPI$  & 0 \\
 \cline{2-5}
-             & ROI          & $-\sCPI$              & $ROI^{(k)}$    & 0 \\
+               & Performance        & $\sPerformance$     & $\sPPI$  & 0 \\
 \hline
-\mr{3}{PFU}  & Budget 2     & 0                     & 1              & $Budget^{(k)}$ \\
+\mr{2}{P4U}    & Revenue            & $\sRevenuePforU$    & 0        & $1+\sCR$ \\
 \cline{2-5}
-             & Average CPI  & $-CPI^{(k)}$          & 1              & 0 \\
-\cline{2-5}
-             & Average CPC  & $-CPC^{(k)}CTR_{i,j}$ & 1              & 0 \\
+               & Performance        & $\sPerformance$     & $\sPPI$  & 0 \\
 \hline
 \end{tabular}
 \end{center}
-\end{table}
+\end{table*}
+
+There're 6 practical constraints as listed in Table \ref{TableConstraints},
+    i.e. budget, DSP ROI and advertiser ROI constraints in P4P and P4U modes.
+Constraints like budget could be expressed in standard form naturally.
+Others, though not so obvious at the first glance, could be rewritten into standard form as well.
+Take DSP ROI constraint in P4P mode for example.
+By definition, we have
+\begin{alignat}{1}
+\frac{\sRevenuePforP}{\sBiddingCost}\ge\sROI
+\end{alignat}
+After multiplying both sides with the denominator,
+    substracting both sides with the nominator,
+    and combining items by $\sx$, we have
+\begin{alignat}{1}
+\sumijx{\{\sROI\sCost-\sCPI\sProb\}}\le0
+\end{alignat}
+It's easy to encode this constraint into standard form with $\pprob=-\sCPI$, $\pcost=\sROI$ and $\sB=0$.
+
+\begin{table*}
+\caption{Practical Constraints\label{TableConstraints}}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\mr{2}{Mode} & \mr{2}{Type}   & \mr{2}{Definition}                             & \mc{2}{$\sW(bp)$}   & \mr{2}{$\sB$} \\
+\cline{4-5}
+             &                &                                                & $\pprob$            & $\pcost$         & \\
+\hline
+\mr{3}{P4P}  & Budget         & $\sRevenuePforP \le \sBudget$                  & $\sCPI$             & 0                & $\sBudget$ \\
+\cline{2-6}
+             & DSP ROI        & $\frac{\sRevenuePforP}{\sBiddingCost}\ge\sROI$ & $-\sCPI$            & $\sROI$          & 0 \\
+\cline{2-6}
+             & Advertiser ROI & $\frac{\sPerformance}{\sRevenuePforP}\ge\sROI$ & $\sCPI\sROI-\sPPI$  & 0                & 0 \\
+\hline
+\mr{3}{P4U}  & Budget         & $\sRevenuePforU \le \sBudget$                  & 0                   & $(1+\sCR)$       & $\sBudget$ \\
+\cline{2-6}
+             & DSP ROI        & $\frac{\sRevenuePforU}{\sBiddingCost}\ge\sROI$ & 0                   & $\sROI-(1+\sCR)$ & 0 \\
+\cline{2-6}
+             & Advertiser ROI & $\frac{\sPerformance}{\sRevenuePforU}\ge\sROI$ & $-\sPPI$            & $\sROI(1+\sCR)$  & 0 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table*}
 
 \section{Augmented GAP} \label{AugmentedGAP}
 
@@ -618,9 +642,9 @@ Here's corresponding dual based strategy for DSP problem.
 Due to the nice property of $\uff$, $\sbp^*$ could be calculated easily without knowledge of $p_i(x)$.
 In addition, ad is usually subjected to very limited number of constraints, which further reduces the complexity of this calculation.
 
-In certain applications, $Q_{i,j}$ is the same for given $i$ and all $j$, then we have $j^* = \argmax\limits_j \sbp^*$.
-For example, when maximizing profit under budget constraint in PFI mode,
-    we have $\sF(bp) = \int_0^{bp} [(1-\salpha)\sCPI-x]p_i(x)dx$ and $Q_{i,j}$ is always 1.
+In certain applications, $Q_{ij}$ is the same for given $i$ and all $j$, then we have $j^* = \argmax\limits_j \sbp^*$.
+For example, when maximizing profit under budget constraint in P4P mode,
+    we have $\sF(bp) = \int_0^{bp} [(1-\salpha)\sCPI-x]p_i(x)dx$ and $Q_{ij}$ is always 1.
 By disposing of $p_i(x)$ completely from deciding process, it not only simplifies the computation,
     but also encourages $p_i(x)$ free training process.
 
@@ -631,9 +655,9 @@ By disposing of $p_i(x)$ completely from deciding process, it not only simplifie
 {
   \For{$Ad_j \in \mathscr{A}$}
   {
-    $\sF(bp; \valpha^*) = \int_0^{bp} (P_{i,j}-Q_{i,j}x)p_i(x)dx$
+    $\sF(bp; \valpha^*) = \int_0^{bp} (P_{ij}-Q_{ij}x)p_i(x)dx$
 
-    $\sbp^* = \sbp(\valpha^*) = P_{i,j}/Q_{i,j}$
+    $\sbp^* = \sbp(\valpha^*) = P_{ij}/Q_{ij}$
 
     $\sS^* = \sS(\valpha^*)$
   }
@@ -684,11 +708,11 @@ Three mocked ads are shown in Table \ref{TableMockedAds},
 \cline{3-5}
                &               & Type               & $k$   & Type \\
 \hline
-$Ad_1$         & PFI           & Profit             & 1     & Budget \\
+$Ad_1$         & P4P           & Profit             & 1     & Budget \\
 \hline
-$Ad_2$         & PFI           & Revenue            & 2     & ROI \\
+$Ad_2$         & P4P           & Revenue            & 2     & ROI \\
 \hline
-\mr{2}{$Ad_3$} & \mr{2}{PFU}   & \mr{2}{Commission} & 3     & Budget \\
+\mr{2}{$Ad_3$} & \mr{2}{P4U}   & \mr{2}{Commission} & 3     & Budget \\
 \cline{4-5}
                &               &                    & 4     & Average CPI \\
 \hline
@@ -715,9 +739,9 @@ $Case_4$   & $\{Ad_j|j \in \{1,2,3\}\}$         & 15 \\
 \end{center}
 \end{table}
 
-In $Case_1$, $Ad_1$ is in PFI mode with budget constraint, and DSP prefers to maximize its profit.
-In $Case_2$, $Ad_2$ is in PFI mode with ROI constraint, and DSP prefers to maximize its revenue.
-In $Case_3$, $Ad_3$ is in PFU mode with budget and average CPI constraints, and DSP prefers to maximize its commission.
+In $Case_1$, $Ad_1$ is in P4P mode with budget constraint, and DSP prefers to maximize its profit.
+In $Case_2$, $Ad_2$ is in P4P mode with ROI constraint, and DSP prefers to maximize its revenue.
+In $Case_3$, $Ad_3$ is in P4U mode with budget and average CPI constraints, and DSP prefers to maximize its commission.
 $Case_4$ is a hybrid case with all above ads in the inventory.
 
 Once the configurations are ready, cases are solved by SGD developed from our theory and brute force MC(Monte Carlo).
@@ -795,7 +819,7 @@ In our application, advertisers set budgets and pay for clicks, while DSP is wil
 There're so many ads in our inventory that it's impossible to go through each ad before auction deadline.
 Although these budgets are quite large totally, they are relatively small on average.
 
-With a well calibrated CPI predictor, the problem could be transformed equivalently into one in PFI mode.
+With a well calibrated CPI predictor, the problem could be transformed equivalently into one in P4P mode.
 And to meet the latency requirement, the whole deciding process is decomposed into two stages with so called logical ad.
 Logical ad should be seen as proxy of physical ads and binded with specific ad retrieval algorithm.
 In the first stage, DSP is supposed to make decisions among just a few logical ads and respond in time.
@@ -811,10 +835,10 @@ Our logical ads are actually based on four heterogeneous ad retrieval algorithms
 These algorithms are sorted by their historical performance in descending orders and four logical ads are constructed correspondingly.
 
 In summary, our problem could be approximately modeled as, given several logical ads with literally unlimited budget,
-    maximizing revenue under global daily ROI constraint in PFI mode.
+    maximizing revenue under global daily ROI constraint in P4P mode.
 According to our theory, we have $\sF(bp) = \int_0^{bp} [(1+\alpha)\sCPI - \alpha{}ROIx]p_i(x)dx$ and $\sbp=\dbbp$.
 Since there is only one resource constraint, superscript $k$ is omitted.
-As $Q_{i,j}$ is always $\alpha{}ROI$, no $p_i(x)$ is required in deciding process.
+As $Q_{ij}$ is always $\alpha{}ROI$, no $p_i(x)$ is required in deciding process.
 To take full advantage of that, we adopt a simplified version of the $p_i(x)$ free optimization method, that is $\dbiter$.
 
 \subsection{Experiment Groups}
@@ -912,7 +936,7 @@ A proper compromise combined with efficient indexing tricks will accelerate both
 
 Third, how to optimally break ties when they are common and critical in certain applications?
 Take an imaginary senario for example.
-All ads are in PFI mode with budget constraints, while DSP is willing to maximize its profit.
+All ads are in P4P mode with budget constraints, while DSP is willing to maximize its profit.
 Besides, these ads share the universal constant CPI and are targeted respectively to overlaped sets of impressions.
 In this circumstance, resolution of impressions and ads is extremely low and ties are very prevalent.
 
