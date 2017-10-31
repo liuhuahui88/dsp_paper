@@ -97,12 +97,12 @@
 \newcommand{\scoreconstraint}{\sbeta \ge \sS(\vec{\alpha})}
 
 \newcommand{\linbp}{}
-\newcommand{\ortbbp}{\sqrt{\frac{cCPI_i}{ROI}(1+\frac{1}{\lambda})+c^2}-c}
+\newcommand{\ortbbp}{\sqrt{\frac{c\sCPI}{ROI}(1+\frac{1}{\lambda})+c^2}-c}
 \newcommand{\dbbp}{\frac{\sCPI}{ROI}(1+\frac{1}{\alpha})}
 
-\newcommand{\liniter}{bp_i^{'}=\frac{ROI_i(bp_i)}{ROI}bp_i}
-\newcommand{\ortbiter}{\lambda^{'}=\frac{ROI}{ROI(\lambda)}\lambda}
-\newcommand{\dbiter}{\alpha^{'} = \frac{ROI}{ROI(\alpha)}\alpha}
+\newcommand{\liniter}{\sbp^{'}=\frac{ActualROI_i(\sbp)}{ROI}Bid}
+\newcommand{\ortbiter}{\lambda^{'}=\frac{ROI}{ActualROI(\lambda)}\lambda}
+\newcommand{\dbiter}{\alpha^{'} = \frac{ROI}{ActualROI(\alpha)}\alpha}
 
 \newcommand{\mr}[2]{\multirow{#1}{*}{#2}}
 \newcommand{\mc}[2]{\multicolumn{#1}{c|}{#2}}
@@ -237,7 +237,7 @@ By modeling the state transition of auction competition,
     the optimal bidding policy is derived in \cite{Reinforce2017} based on reinforcement learning theory.
 
 The probability estimation of interested feedbacks plays a central role in performance based advertising.
-CTR prediction is of great importance and extensively studied by researchers.
+CTR(Click Through Rate) prediction is of great importance and extensively studied by researchers.
 FTRL-Proximal, an online learning algorithm, is proposed in \cite{Google2013} and sparse model is learned for CTR prediction.
 In \cite{Facebook2014}, a hybrid model which combines decision trees with logistic regression
     outperforms either of these methods on their own.
@@ -870,12 +870,12 @@ $Case_2$          & $Ad_2$         & 2     & 0.0000      & 0.0000          & 0.0
 
 \subsection{Scenario}
 
-We also deploy our strategy in a real industrial application.
-In our application, advertisers set budgets and pay for clicks, while DSP is willing to maximize revenue under global daily ROI constraint.
+We also deploy our strategy in the DSP platform of Alibaba.
+In our application, advertisers set budgets and pay for clicks, while DSP is willing to maximize revenue under daily global DSP ROI constraint.
 There're so many ads in our inventory that it's impossible to go through each ad before auction deadline.
 Although these budgets are quite large totally, they are relatively small on average.
 
-With a well calibrated CPI predictor, the problem could be transformed equivalently into one in P4P mode.
+With well calibrated CPP and PPI predictors, the problem could be transformed equivalently into one in P4P mode.
 And to meet the latency requirement, the whole deciding process is decomposed into two stages with so called logical ad.
 Logical ad should be seen as proxy of physical ads and binded with specific ad retrieval algorithm.
 In the first stage, DSP is supposed to make decisions among just a few logical ads and respond in time.
@@ -887,27 +887,29 @@ In the second stage, once the chosen logical ad wins the auction, physical ad is
 \caption{Real Time Bidding with Logical Ad}
 \end{figure}
 
-Our logical ads are actually based on four heterogeneous ad retrieval algorithms whose details are beyond the scope of this document.
-These algorithms are sorted by their historical performance in descending orders and four logical ads are constructed correspondingly.
+Our logical ads are actually based on 4 heterogeneous ad retrieval algorithms whose details are beyond the scope of this document.
+These algorithms are sorted by their historical performance in descending orders and 4 logical ads are constructed correspondingly.
 
-In summary, our problem could be approximately modeled as, given several logical ads with literally unlimited budget,
-    maximizing revenue under global daily ROI constraint in P4P mode.
-According to our theory, we have $\sF(bp) = \int_0^{bp} [(1+\alpha)\sCPI - \alpha{}ROIx]p_i(x)dx$ and $\sbp=\dbbp$.
-Since there is only one resource constraint, superscript $k$ is omitted.
-As $Q_{ij}$ is always $\alpha{}ROI$, no $p_i(x)$ is required in deciding process.
-To take full advantage of that, we adopt a simplified version of the $p_i(x)$ free optimization method, that is $\dbiter$.
+In summary, our problem could be approximately modeled as, given 4 logical ads with literally unlimited budget,
+    maximizing revenue under daily global DSP ROI constraint in P4P mode.
+Since there is only one resource constraint, superscript $k$ is omitted and
+    ROI is short for global DSP ROI in the rest of Section \ref{Application}.
+
+According to our theory, we have $\pprob_{\sF}=(1+\alpha)\sCPI$ and $\pcost_{\sF}=-\alpha{}ROI$.
+Since $\pcost_{\sF}$ is always $-\alpha{}ROI$, no $p_i(x)$ is required in deciding process as discussed in Section \ref{DSPDualBasedStrategy}.
+To take full advantage of that, we adopt a simplified version of the $p_i(x)$ free optimization method
+    suggested in Section \ref{DSPNumericOptimization}, i.e. $\dbiter$.
 
 \subsection{Experiment Groups}
 
 We compare our strategy with a variation of linear bidding strategy.
-In \cite{M6D}, it's suguested that $bp_i=\frac{CTR_i}{CTR}Bid$ with $Bid$ set by operation team.
-In our application, it's natural to define $bp_i=\frac{ROI_i}{ROI}Bid$.
-However, unlike $CTR_i$ which is independent of $bp_i$, $ROI_i$ actually varies with it.
-Intuitively, we have $\liniter$.
+In \cite{M6D}, it's suguested that $\sbp=\frac{ActualCTR_{ij}}{CTR}Bid$ with $Bid$ set by operation team.
+However, unlike $ActualCTR_{ij}$ which is independent of $\sbp$, $ActualROI_{ij}$ indeed varies with it.
+As a result, we iteratively update $\sbp$ with $\liniter$.
 
 We also apply optimal RTB theory to our application for comparison.
-According to \cite{WeinanZhang2014}, we model the win probability as $w(bp;c)=\frac{bp}{c+bp}$ and bid with $bp_i=\ortbbp$,
-    in which $c$ is fitted with historical data and $\lambda$ is iteratively tuned with $\ortbiter$.
+According to \cite{WeinanZhang2014}, we model the win probability as $w(bp;c)=\frac{bp}{c+bp}$ and bid with $\sbp=\ortbbp$,
+    in which $c$ is fitted with method proposed by \cite{Wu2015} and $\lambda$ is iteratively tuned with $\ortbiter$.
 
 Four experiment groups are shown in Table \ref{TableExperimentGroups}.
 The first three groups are designed to compare different strategies with single logical ad,
@@ -920,7 +922,7 @@ The first three groups are designed to compare different strategies with single 
 \hline
 Group    & Inventory                           & Strategy           & $\sbp$          & Iteration         & Period\\
 \hline
-$LIN$    & $\{LogicalAd_1\}$                   & Linear             & $bp_i$          & $\liniter$        & 24 hours \\
+$LIN$    & $\{LogicalAd_1\}$                   & Linear             & $\sbp$          & $\liniter$        & 24 hours \\
 \hline
 $ORTB$   & $\{LogicalAd_1\}$                   & Optimal RTB        & $\ortbbp$       & $\ortbiter$       & \mr{3}{10 minutes} \\
 \cline{1-5}
@@ -934,10 +936,11 @@ $DB_{m}$ & $\{LogicalAd_j|j \in \{1,2,3,4\}\}$ &                    &           
 
 To eliminate potential bias, the experiment lasts for a whole ordinary week.
 Bidding opportunities are distributed to each group randomly with equal probability.
-For fairness, the same CPI predictor is shared by all groups.
-The lower bound of global daily ROI is set to 3.5.
+For fairness, the same CPP and PPI predictors are shared by all groups.
+The lower bound of daily ROI is set to 3.5.
 
-Parameters are periodically adjusted with performance data collected since last update.
+Strategy parameters(i.e. $\sbp$, $\lambda$ and $\alpha$) are randomly initialized and
+    periodically adjusted with actual ROI since last update.
 The period is set to 24 hours for the $LIN$ group due to the data sparseness
     and 10 minutes as to the others for robustness and faster convergence.
 Note that the more frequent update introduces inexplicitly a 10 minutes ROI constraint
@@ -957,9 +960,9 @@ For each group, the daily statistics of four metrics are plotted in Figure \ref{
 The $LIN$, though with theoretical optimal intact, tends to earn less revenue than the others in practice.
 In addition, it usually violates the daily ROI constraint seriously, so it's an inferior strategy.
 
-Compared with the $DB_s$ who claims a linear relationship between bid price and $CPI$,
+Compared with the $DB_s$ who claims a linear relationship between bid price and expected revenue,
     the $ORTB$, derived from first price auction assumption, suggests a non-linear one.
-It is biased towards the impressions with low $CPI$ and against those with high $CPI$,
+It is biased towards the impressions with low expected revenue and against those with high expected revenue.
     which leads to more impressions and lower averaged quality.
 While the daily ROI constraint is satisfied by both strategies,
     the $DB_s$ earns more revenue than the $ORTB$. As a result, the $DB_s$ is superior theoretically and practically.
