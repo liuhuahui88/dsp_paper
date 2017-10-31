@@ -31,9 +31,9 @@
 \acmISBN{123-4567-24-567/08/06}
 
 %Conference
-\acmConference[CIKM'17]{ACM International Conference on Information and Knowledge Management}{November 2017}{Pan Pacific, Singapore}
-\acmYear{2017}
-\copyrightyear{2017}
+%\acmConference[WWW'17]{ACM International Conference on Information and Knowledge Management}{November 2017}{Pan Pacific, Singapore}
+%\acmYear{2017}
+%\copyrightyear{2017}
 
 %\acmPrice{15.00}
 
@@ -59,6 +59,7 @@
 \newcommand{\sBudget}{Budget^{(k)}}
 \newcommand{\sROI}{ROI^{(k)}}
 
+\newcommand{\inRange}[1]{\in\{1,2,...,#1\}}
 
 \newcommand{\sCPP}{CPP_j}
 \newcommand{\sCR}{CR_j}
@@ -71,10 +72,10 @@
 \newcommand{\sBiddingCost}{\sumijx{\sCost}}
 
 \newcommand{\salpha}{\alpha^{(k)}}
-\newcommand{\stheta}{\theta^{(k)}}
+\newcommand{\szeta}{\zeta^{(k)}}
 \newcommand{\sbeta}{\beta_i}
 \newcommand{\seta}{\eta_i}
-\newcommand{\slambda}{\lambda_{ij}}
+\newcommand{\sgamma}{\gamma_{ij}}
 
 \newcommand{\sF}{F_{ij}}
 \newcommand{\sS}{S_{ij}}
@@ -83,13 +84,13 @@
 \newcommand{\valpha}{\vec{\alpha}}
 \newcommand{\vtheta}{\vec{\theta}}
 
-\newcommand{\pprob}{\psi_1}
-\newcommand{\pcost}{\psi_2}
+\newcommand{\pprob}{\phi}
+\newcommand{\pcost}{\psi}
 \newcommand{\uff}{\mathscr{F}}
 \newcommand{\uf}{f(bp; \pprob, \pcost, p(x))}
 
 \newcommand{\dspresourceconstraint}{\sumij \sx \sW(\sbp) \le \sB}
-\newcommand{\agapresourceconstraint}{\sumij \sx \sW(\sV) \le \sB}
+\newcommand{\ammkpresourceconstraint}{\sumij \sx \sW(\sV) \le \sB}
 
 \newcommand{\assignmentconstraint}{\sumj \sx \le 1}
 
@@ -119,8 +120,8 @@ It's essential for DSP to find an optimal ad selection and bid price determinati
     in P4P(Pay For Performance) or P4U(Pay For Usage) mode.
 We solve this problem by
     1) formalizing the DSP problem as a constrained optimization problem,
-    2) proposing the augmented GAP(Generalized Assignment Problem) with general solution,
-    3) and demonstrating the DSP problem is a special case of the augmented GAP and deriving specialized strategy.
+    2) proposing the augmented MMKP(Multi-choice Multi-dimensional Knapsack Problem) with general solution,
+    3) and demonstrating the DSP problem is a special case of the augmented MMKP and deriving specialized strategy.
 Our strategy is verified through simulation and outperforms state-of-the-art strategies in real application.
 To the best of our knowledge, our solution is the first dual based DSP bidding framework
     that is derived from strict second price auction assumption and
@@ -179,11 +180,13 @@ During the optimization, several constraints must be satisfied
 It's essential for DSP to find an optimal ad selection and bid price determination strategy
     which maximizes revenue or performance under budget and ROI constraints in P4P or P4U mode.
 We solve this problem by
+
 \begin{enumerate}
 \item formalizing the DSP problem as a constrained optimization problem(Section \ref{Formalization}),
-\item proposing the augmented GAP(Generalized Assignment Problem) with general solution(Section \ref{AugmentedGAP}),
-\item and demonstrating the DSP problem is a special case of the augmented GAP and deriving specialized strategy(Section \ref{Solution}).
+\item proposing the augmented MMKP(Multi-choice Multi-dim-ensional Knapsack Problem) with general solution(Section \ref{AugmentedMMKP}),
+\item and demonstrating the DSP problem is a special case of the augmented MMKP and deriving specialized strategy(Section \ref{Solution}).
 \end{enumerate}
+
 Our strategy is verified through simulation(Section \ref{Simulation}) and
     outperforms state-of-the-art strategies in real application(Section \ref{Application}).
 To the best of our knowledge, our solution is the first dual based DSP bidding framework
@@ -200,22 +203,32 @@ Second, it is assumed that all advertisers aggree to the same payment mode and p
     and DSP prefers to optimize a pure objective rather than a hybrid one.
 Third, the CPP in P4P mode or CR in P4U mode are set on the ad level,
     i.e. the advertiser is able to set different CPP or CR for his ads.
-Fourth, the constraints are set on ad group level,
+And the constraints are set on ad group level,
     e.g. the budget might be shared by ads of the same advertiser
     and DSP might be interested in controlling its global ROI.
 At last, the ROI lower bound for advertiser could also be interpreted as the CPP upper bound
     which might be more familiar to some readers.
+
 \section{Related Works}
 
-The linear bidding strategy proposed in \cite{M6D} is a heuristic method and,
-    given base price, bids in propotion to the relative quality of impression.
-\cite{WeinanZhang2014} suggests a non-linear relationship between optimal bid price and KPIs.
-Based on calculus of variations, their strategy is derived from first price auction assumption.
-Winning rate is explicitly modeled as a function of bid price, and,
-    to find the analytical solution, this function must be of specific forms.
+\cite{M6D} suggests a linear bidding strategy which, given base price,
+    bids in propotion to the relative quality of impression.
+However, their method is a heuristic one and lacks theoretical foundations.
+
+Based on calculus of variations, \cite{WeinanZhang2014} suggests a non-linear relationship between optimal bid price and KPIs.
+However, their strategy is derived from first price auction assumption which doesn't hold in RTB.
+Besides, winning rate is explicitly modeled as a function of bid price in \cite{WeinanZhang2014}.
+To find the analytical solution of the optimal bid price,
+    the winning rate function must be of specific forms,
+    which makes their method inflexible.
+
 Both win rate and winning price are estimated in \cite{XiangLi2014}, and the corresponding bidding strategy is provided.
+However, their strategy doesn't consider any constraints(i.e. budget) which are common in real DSP applications.
+
 While all above researches consider only one campaign,
     \cite{WeinanZhang2015} extends \cite{WeinanZhang2014} and proposes bidding strategy for multiple campaigns.
+However, \cite{WeinanZhang2015} also shares the drawbacks of \cite{WeinanZhang2014} as listed above.
+
 \cite{Joint2016} studies the joint optimization of multiple objectives with priorities.
 \cite{Lift2016} argues that the bid price should be decided
     based on the performance lift rather than absolute performance value.
@@ -263,11 +276,11 @@ Although most kinds of resources(e.g. budget) are sort of private and only acces
     \quad                         & \sx \ge 0 \quad               & \forall i,j
 \end{alignat}
 
-$i$ is the index of $Impression$
+$i \inRange{N}$ is the index of $Impression$
 
-$j$ is the index of $Ad$
+$j \inRange{M}$ is the index of $Ad$
 
-$k$ is the index of $Constraint$
+$k \inRange{K}$ is the index of $Constraint$
 
 $\sx$ is a relaxed variable, indicating whether $Impression_i$ should be given to $Ad_j$
 
@@ -306,10 +319,13 @@ To win $Impression_i$, our $BidPrice$ must be higher than $x$, but we will only 
 Then the expected winning probability and bidding cost for our DSP could be defined as follows.
 As our $BidPrice$ goes infinit, we'll win $Impression_i$ with probability 1 and our bidding cost must be the mean of $p_i(x)$.
 
-\begin{alignat}{2}
-Prob_i(BidPrice)= & \int_0^{BidPrice} p_i(x) \mathrm{d} x \\
-Cost_i(BidPrice)= & \int_0^{BidPrice} x p_i(x) \mathrm{d} x
-\end{alignat}
+\begin{definition}
+$Prob_i(BidPrice)= \int_0^{BidPrice} p_i(x) \mathrm{d} x$
+\end{definition}
+
+\begin{definition}
+$Cost_i(BidPrice)= \int_0^{BidPrice} x p_i(x) \mathrm{d} x$
+\end{definition}
 
 It is the non-negativity property of $p_i(x)$ and the integral forms of $Prob_i(BidPrice)$ and $Cost_i(BidPrice)$
     which play a central role in our theory(Section \ref{UtilityFunctionFamily}).
@@ -336,20 +352,25 @@ The practical $V(bp)$ and $W(bp)$ in DSP problem come from a certain family
 
 \begin{definition}
 $\uff$ is the function family that $\forall f \in \uff$ is of the form
-    $ \uf = \int_0^{bp} (\pprob + \pcost x)p(x)dx = \pprob Prob(bp) + \pcost Cost(bp) $.
+    $ \uf = \pprob Prob(bp) + \pcost Cost(bp) = \int_0^{bp} (\pprob + \pcost x)p(x)dx $.
 \end{definition}
 
-\begin{theorem}
-$\uff$ is closed under linear combinations.
+\begin{theorem} \label{DerivationTheorem}
+Given $\forall f \in \uff$, we have $f'=(\pprob + \pcost{}bp)p(bp)$.
 \end{theorem}
 
-\begin{theorem}
-Given $\forall f \in \uff$ with $\pprob > 0$ and $\pcost < 0$, we have $\argmax\limits_{bp} \uf = - \pprob / \pcost$.
+\begin{theorem} \label{ArgMaxTheorem}
+Given $\forall f \in \uff$, we have $\argmax\limits_{bp} f = - \pprob / \pcost$.
 \end{theorem}
 
-\begin{theorem}
-Given $\forall g,h \in \uff$ with common $p(x)$,
-    we have $\frac{d^2h}{d^2g} = \frac{\pprob^g \pcost^h - \pcost^g \pprob^h}{(\pprob^g + \pcost^g bp)^3 p(bp)}$.
+\begin{theorem} \label{ComparisonTheorem}
+Given $\forall g,h \in \uff$ with shared $p(x)$ and $\pcost$, we have $\max\limits_{bp} g \ge \max\limits_{bp} f$
+    if and only if $\pprob_g \ge \pprob_f$.
+\end{theorem}
+
+\begin{theorem} \label{SecondDerivationTheorem}
+Given $\forall g,h \in \uff$ with shared $p(x)$,
+    we have $\frac{d^2h}{dg^2} = \frac{\pprob_g \pcost_h - \pcost_g \pprob_h}{(\pprob_g + \pcost_g bp)^3 p(bp)}$.
 \end{theorem}
 
 All above theorems are listed here for summarization purpose and will be referenced when actually used.
@@ -386,6 +407,7 @@ There're 6 practical constraints as listed in Table \ref{TableConstraints},
     i.e. budget, DSP ROI and advertiser ROI constraints in P4P and P4U modes.
 Constraints like budget could be expressed in standard form naturally.
 Others, though not so obvious at the first glance, could be rewritten into standard form as well.
+
 Take DSP ROI constraint in P4P mode for example.
 By definition, we have
 \begin{alignat}{1}
@@ -424,27 +446,26 @@ It's easy to encode this constraint into standard form with $\pprob=-\sCPI$, $\p
 \end{center}
 \end{table*}
 
-\section{Augmented GAP} \label{AugmentedGAP}
+\section{Augmented MMKP} \label{AugmentedMMKP}
 
 \subsection{Primal}
 
-Now we propose the augmented GAP which extends the GAP in two ways.
-First, user is subjected to multiple constraints and constraint is shared by multiple users.
-Second, resource consumption becomes function of gain.
-It's straightforward to see that DSP problem is a special case of augmented GAP.
+Now we propose the augmented MMKP which could be formalized as follows and seen as an extension of MMKP with infinitely many sub-choices.
+In the original MMKP, both $V$ and $W$ are constants, while, in the augmented MMKP, $V$ is variable and $W$ becomes function of $V$.
+Our main-choice and sub-choice are indicated by $x$ and corresponding $V$ respectively.
 
 \begin{alignat}{2}
     \max\limits_{\sx, \sV} \quad & \sumij \sx \sV \quad              & {} \\
-    \mbox{s.t.} \quad            & \agapresourceconstraint \quad     & \forall k \\
+    \mbox{s.t.} \quad            & \ammkpresourceconstraint \quad    & \forall k \\
     \quad                        & \assignmentconstraint \quad       & \forall i \\
     \quad                        & \sx \ge 0 \quad                   & \forall i,j
 \end{alignat}
 
-$i$ is the index of $Item$
+$i \inRange{N}$ is the index of $Item$
 
-$j$ is the index of $User$
+$j \inRange{M}$ is the index of $User$
 
-$k$ is the index of $Constraint$
+$k \inRange{K}$ is the index of $Constraint$
 
 $\sx$ is a relaxed variable, indicating whether $Item_i$ should be given to $User_j$
 
@@ -456,11 +477,7 @@ $\sB$ is a resource limit constant
 
 \subsection{Dual}
 
-We define several basic functions and show the dual of augmented GAP based on them.
-$\sF$ serves as sort of score function which evaluates the utility of distributing $Item_i$ to $User_j$.
-The mathematical justification of $\sF$ will be given shortly, and it's worth to offer some intuitive explanations first.
-Our gain $V$ is compromised by resource consumption $\sW(V)$ with so called opportunity cost,
-    which could be calculated as unit $\sW(V)$ times price $\salpha$.
+We define several basic functions and show the dual of augmented MMKP based on them.
 
 \begin{definition}
 $\sF(V; \valpha) = V - \sumk \salpha \sW(V)$
@@ -481,13 +498,18 @@ $\sS(\valpha) = \max\limits_V \sF(V; \valpha)$
     \quad                               & \sbeta \ge 0 \quad                       & \forall i
 \end{alignat}
 
+$\sF(V; \valpha)$ serves as sort of score function which is used to estimate
+    the utility of distributing $Item_i$ to $User_j$ with sub-choice $V$.
+It could be interpreted as the compromised gain function in which
+    our original gain $V$ is degenerated by resource consumption $W$ with opportunity price $\alpha$.
+
 \subsection{Strong Duality}
 
-The strong duality of augmented GAP is provable under mild assumption.
+The strong duality of augmented MMKP is provable under mild assumption.
 A brief proof is provided here and more details are revealed in the appendix.
 
-\begin{theorem}
-If $W(V)$ is convex function of $V$, strong duality holds.
+\begin{theorem} \label{StrongDualityTheorem}
+If $W(V)$ is convex function of $V$, strong duality of augmented MMKP holds.
 \end{theorem}
 
 \begin{proof}
@@ -521,12 +543,13 @@ Since $W(V)$ is convex function of $V$, inner is a strong duality problem, inner
 Since dualize(inner) is a strong duality problem, dualize(inner) = dualize(dualize(inner)), d = dd.
 Since D is a strong duality problem, D = DD.
 dd and DD happen to have the same form, dd = DD.
-As a result, P = D, strong duality holds.
+As a result, P = D, strong duality of augmented MMKP holds.
 \end{proof}
 
 \subsection{Dual Based Strategy}
 
-With strong duality satisfied, several important properties are claimed about the optimal solution of both primal and dual problems,
+With strong duality satisfied, several important properties
+    are claimed about the optimal solution of both primal and dual problems(i.e. $\sx^*$, $\sV^*$, $\valpha^*$ and $\sbeta^*$),
     based on which we propose the dual based strategy.
 
 \begin{theorem}
@@ -549,14 +572,14 @@ Now that $\sbeta^* - \sS(\valpha^*) > 0$ and $\sx^* \ge 0$,
 \end{proof}
 
 \begin{corollary}
-If $S_{i,j_1}(\valpha^*) < S_{i,j_2}(\valpha^*)$, we have $x_{i,j_1}^* = 0$.
+If $S_{ij_1}(\valpha^*) < S_{ij_2}(\valpha^*)$, we have $x_{ij_1}^* = 0$.
 \end{corollary}
 
 \begin{proof}
-Similarly, since $S_{i,j_1}(\valpha^*) < S_{i,j_2}(\valpha^*)$ and $\sbeta^* \ge S_{i,j_2}(\valpha^*)$,
-    we have $\sbeta^* > S_{i,j_1}(\valpha^*)$.
-Now that $\sbeta^* - S_{i,j_1}(\valpha^*) > 0$ and $x_{i,j_1}^* \ge 0$, 
-    taking above theorem into consideration, $x_{i,j_1}^*$ must be 0,
+Similarly, since $S_{ij_1}(\valpha^*) < S_{ij_2}(\valpha^*)$ and $\sbeta^* \ge S_{ij_2}(\valpha^*)$,
+    we have $\sbeta^* > S_{ij_1}(\valpha^*)$.
+Now that $\sbeta^* - S_{ij_1}(\valpha^*) > 0$ and $x_{ij_1}^* \ge 0$, 
+    taking above theorem into consideration, $x_{ij_1}^*$ must be 0,
     that is $Item_i$ should not be distributed to dominated $User_{j_1}$.
 \end{proof}
 
@@ -576,37 +599,60 @@ Now that $\sbeta^* > 0$ and $\sum\limits_j \sx^* - 1 \le 0$,
 \end{proof}
 
 In summary, for each $Item_i$, every $User_j$ should propose its own best score $\sS^*$ achieved by $\sV^*$.
-$Item_i$ should be awarded to the dominating user if its best score is positive and discarded if that is negative.
-Theoretically speaking, while most which are determined by above corollaries, behariors remain undefined in two special cases.
+$Item_i$ should be awarded to the dominating $User_{j^*}$ if its best score $S_{ij^*}^*$ is positive and discarded if that is negative.
+Theoretically speaking, while most of which are determined by above corollaries, behaviors remain undefined in two special cases.
 First, there might be multiple dominating users with the same best score.
 Second, the best score of dominating user might be exactly zero.
 In practice, however, both cases are probably rare due to the high resolution of items and users, and prone to cause relatively limited damage.
 Ties could be broken by random or heuristics.
 
 \begin{algorithm}
-\caption{Dual Based Strategy for Augmented GAP}
+\caption{Dual Based Strategy for Augmented MMKP}
 
 \For{$Item_i \in \mathscr{I}$}
 {
   \For{$User_j \in \mathscr{U}$}
   {
-    $\sV^* = \sV(\valpha^*)$
+    $\sF(V; \valpha^*) = V - \sumk \salpha \sW(V)$
 
-    $\sS^* = \sS(\valpha^*)$
+    $\sV^* = \sV(\valpha^*) = \argmax\limits_V \sF(V; \valpha^*)$
+
+    $\sS^* = \sS(\valpha^*) = \max\limits_V \sF(V; \valpha^*)$
   }
   $j^* = \argmax\limits_j \sS^*$
   
-  \If{$S_{i,j^*}^* \ge 0$} { bid with ($User_{j^*}$, $V_{i,j^*}^*$) }
+  \If{$S_{ij^*}^* \ge 0$} { bid with ($User_{j^*}$, $V_{ij^*}^*$) }
 }
 \end{algorithm}
+
+\subsection{Numeric Optimitization}
+
+Note that, during the execution of the dual base strategy,
+    only the $\valpha^*$ is mandatory while the others(i.e. $\sx^*$, $\sV^*$ and $\sbeta^*$) could be recovered with $\valpha^*$,
+    which makes our strategy storage efficient.
+Next, we propose the numeric method to solve $\valpha^*$.
+
+\begin{definition}
+$\sbeta(\valpha) = \max \{ 0, \sS(\valpha) \forall j \}$
+\end{definition}
+
+\begin{definition}
+$\sG(\valpha) = \sum\limits_k \frac{\salpha \sB}{N} + \sbeta(\valpha)$
+\end{definition}
+
+By fixing $\valpha$ in the dual problem, $\sbeta^*$ could be calculated as $\sbeta^* = \sbeta(\valpha)$.
+Then the dual problem could be rewritten as 
+\begin{alignat}{2}
+\min\limits_{\valpha \ge 0} & \sum\limits_i \sG(\valpha)
+\end{alignat}
+    and solved by SGD(Stochastic Gradient Descent).
+Due to the convexity of dual problem, it must converge to the global optimal $\valpha^*$.
 
 \section{Solution} \label{Solution}
 
 \subsection{Dual}
 
 We define corresponding basic functions and show the dual of DSP problem based on them.
-It's worth to notice that $\sF$ is linear combination of $\sV(bp)$ and $\sW(bp)$ from $\uff$.
-As a result, it must belong to $\uff$ too.
 
 \begin{definition}
 $\sF(bp; \valpha) = \sV(bp) - \sumk \salpha \sW(bp)$
@@ -627,24 +673,39 @@ $\sS(\valpha) = \max\limits_{bp} \sF(bp; \valpha)$
     \quad                               & \sbeta \ge 0 \quad                     & \forall i
 \end{alignat}
 
+Note that, in DSP problem, our sub-choice is indicated by $bp$ rather than $V$.
+Since $\sF$ is the linear combination of $\sV(bp)$ and $\sW(bp)$ from $\uff$ with shared $p_i(x)$,
+    it must belong to $\uff$ too with its $\pprob_{\sF}$ and $\pcost_{\sF}$ as follows.
+\begin{alignat}{2}
+\pprob_{\sF}= & \pprob_{\sV} - \sum\limits_k \salpha \pprob_{\sW} \\
+\pcost_{\sF}= & \pcost_{\sV} - \sum\limits_k \salpha \pcost_{\sW}
+\end{alignat}
+In practice, each ad is usually subjected to very limited number of constraints,
+    which makes the calculation of $\pprob_{\sF}$ and $\pcost_{\sF}$ light-weighted.
+
 \subsection{Strong Duality}
 
-Given the nice property of $\uff$, it's easy to check that, in practical cases, $W(bp)$ is indeed convex function of $V(bp)$,
+Due to the nice property of $\uff$, it's easy to check that,
+    as to practical objectives and constraints(Section \ref{ObjectivesAndConstraints}),
+    $W(bp)$ is indeed convex function of $V(bp)$,
     which immediately justifies the strong duality of DSP problem.
 
 \begin{theorem}
-In practical cases, $W(bp)$ is convex function of $V(bp)$, strong duality holds
+Strong duality of DSP problem holds.
 \end{theorem}
+
+\begin{proof}
+According to Theorem \ref{DerivationTheorem}, $V'(bp)>0$ and $W(bp)$ must be function of $V(bp)$.
+According to Theorem \ref{SecondDerivationTheorem}, $\frac{d^2W}{dV^2}\ge0$ and $W(bp)$ must be convex function of $V(bp)$.
+As a result, according to Theorem \ref{StrongDualityTheorem}, strong duality of DSP problem holds.
+\end{proof}
 
 \subsection{Dual Based Strategy} \label{DSPDualBasedStrategy}
 
-Here's corresponding dual based strategy for DSP problem.
-Due to the nice property of $\uff$, $\sbp^*$ could be calculated easily without knowledge of $p_i(x)$.
-In addition, ad is usually subjected to very limited number of constraints, which further reduces the complexity of this calculation.
-
-In certain applications, $Q_{ij}$ is the same for given $i$ and all $j$, then we have $j^* = \argmax\limits_j \sbp^*$.
-For example, when maximizing profit under budget constraint in P4P mode,
-    we have $\sF(bp) = \int_0^{bp} [(1-\salpha)\sCPI-x]p_i(x)dx$ and $Q_{ij}$ is always 1.
+With strong duality satisfied, the dual based strategy developed for augmented MMKP is also applicable to DSP problem.
+Generally speaking, $\sbp^*$ could be determined without $p_i(x)$ according to Theorem \ref{ArgMaxTheorem}.
+In certain applications, $\pcost_{\sF}$ is the same for given $i$ and all $j$,
+    then $j^*$ could also be determined independent of $p_i(x)$ according to Theorem \ref{ComparisonTheorem}.
 By disposing of $p_i(x)$ completely from deciding process, it not only simplifies the computation,
     but also encourages $p_i(x)$ free training process.
 
@@ -655,27 +716,27 @@ By disposing of $p_i(x)$ completely from deciding process, it not only simplifie
 {
   \For{$Ad_j \in \mathscr{A}$}
   {
-    $\sF(bp; \valpha^*) = \int_0^{bp} (P_{ij}-Q_{ij}x)p_i(x)dx$
+    $\pprob_{\sF} = \pprob_{\sV} - \sum\limits_k \salpha \pprob_{\sW}$
 
-    $\sbp^* = \sbp(\valpha^*) = P_{ij}/Q_{ij}$
+    $\pcost_{\sF} = \pcost_{\sV} - \sum\limits_k \salpha \pcost_{\sW}$
 
-    $\sS^* = \sS(\valpha^*)$
+    $\sF(bp; \valpha^*) = \int_0^{bp} (\pprob_{\sF}+\pcost_{\sF}x)p_i(x)dx$
+
+    $\sbp^* = \sbp(\valpha^*) = \argmax\limits_{bp} \sF(bp; \valpha^*) = -\pprob_{\sF} / \pcost_{\sF}$
+
+    $\sS^* = \sS(\valpha^*) = \max\limits_{bp} \sF(bp; \valpha^*)$
   }
   $j^* = \argmax\limits_j \sS^*$
   
-  \If{$S_{i,j^*}^* \ge 0$} { bid with ($Ad_{j^*}$, $bp_{i,j^*}^*$) }
+  \If{$S_{ij^*}^* \ge 0$} { bid with ($Ad_{j^*}$, $bp_{ij^*}^*$) }
 }
 \end{algorithm}
 
 \subsection{Numeric Optimitization} \label{DSPNumericOptimization}
 
-By fixing $\valpha$ in the dual problem, $\sbeta^*$ could be calculated independently,
-    that is $\sbeta^* = \sbeta(\valpha) = \max \{ 0, \sS(\valpha) \forall j \}$.
-It's easy to prove that $\frac{d\sbeta(\valpha)}{d\salpha}$ must be either $0$ or $-\sW(\sbp(\valpha))$.
-Now we define $\sG(\valpha) = \sum\limits_k \frac{\salpha \sB}{N} + \sbeta(\valpha)$, in which $N$ is the number of impressions.
-Then the dual problem could be rewritten as $\min\limits_{\valpha \ge 0} \sum\limits_i \sG(\valpha)$
-    and solved by SGD(Stochastic Gradient Descent).
-Due to the convexity of dual problem, it must converge to the global optimal $\valpha^*$.
+The numeric method developed for augmented MMKP is also applicable to DSP problem.
+It's easy to prove that $\frac{d\sbeta(\valpha)}{d\salpha}$ must be
+    either $-\sW(\sbp(\valpha))$ if the best score of the dominating $Ad_j$ is positive or $0$ otherwise.
 This optimization method, though generally applicable, requires explicit modeling of $p_i(x)$.
 
 Through executing our strategy in production environment, the randomized version of $\sW(\sbp(\valpha))$ is revealed
@@ -687,17 +748,12 @@ This optimization method is $p_i(x)$ free and much easier to implement.
 \subsection{Methodology}
 
 To eliminate the uncertainty, our strategy is verified through simulation.
-For simplicity, $p(x)$ is assumed to be a hill shaped distribution as depicted in Figure \ref{Hill} with its summit as the only parameter.
+As suggested by \cite{YingCui2011}, $p(x)$ is assumed to be log normal distribution
+    with mean $\mu$ and standarded deviation $\sigma$ as parameters.
 To mock the impressions, several pairs of $p(x)$ and $CPI$ are drawn randomly.
 Three mocked ads are shown in Table \ref{TableMockedAds},
     based on which four simulated cases are proposed in Table \ref{TableSimulatedCases},
     three for single ad and one for multiple ads.
-
-\begin{figure}[!h]
-\centering
-\includegraphics[width=0.5\linewidth]{./Hill.jpg}
-\caption{Hill Shaped Distribution\label{Hill}}
-\end{figure}
 
 \begin{table}
 \caption{Mocked Ads\label{TableMockedAds}}
@@ -885,7 +941,7 @@ Parameters are periodically adjusted with performance data collected since last 
 The period is set to 24 hours for the $LIN$ group due to the data sparseness
     and 10 minutes as to the others for robustness and faster convergence.
 Note that the more frequent update introduces inexplicitly a 10 minutes ROI constraint
-    which is stricter than the daily one and might degenerate the theoratical optimal.
+    which is stricter than the daily one and might degenerate the theoretical optimal.
 
 \subsection{Results and Analysis}
 
@@ -898,7 +954,7 @@ For each group, the daily statistics of four metrics are plotted in Figure \ref{
 \caption{Experiment Results\label{Result}}
 \end{figure}
 
-The $LIN$, though with theoratical optimal intact, tends to earn less revenue than the others in practice.
+The $LIN$, though with theoretical optimal intact, tends to earn less revenue than the others in practice.
 In addition, it usually violates the daily ROI constraint seriously, so it's an inferior strategy.
 
 Compared with the $DB_s$ who claims a linear relationship between bid price and $CPI$,
@@ -906,7 +962,7 @@ Compared with the $DB_s$ who claims a linear relationship between bid price and 
 It is biased towards the impressions with low $CPI$ and against those with high $CPI$,
     which leads to more impressions and lower averaged quality.
 While the daily ROI constraint is satisfied by both strategies,
-    the $DB_s$ earns more revenue than the $ORTB$. As a result, the $DB_s$ is superior theoratically and practically.
+    the $DB_s$ earns more revenue than the $ORTB$. As a result, the $DB_s$ is superior theoretically and practically.
 
 The $DB_m$, as an ensemble of four ad retrieval algorithms,
     achieves the most revenue without violation of the daily ROI constraint and becomes the best strategy.
@@ -916,16 +972,16 @@ The $DB_m$, as an ensemble of four ad retrieval algorithms,
 In this document, we propose a dual based DSP bidding strategy
     derived from second price auction assumption according to convex optimization theory.
 Our strategy is verified through simulation and outperforms state-of-the-art strategies in real application.
-It's a theoratically solid and practically effective strategy with simple implementation and various applications.
+It's a theoretically solid and practically effective strategy with simple implementation and various applications.
 
 Three problems remain unsolved and deserve further study.
-First, is there a better way to solve $\valpha$ of large scale in dynamic environment?
+First, is there a better way to solve $\valpha^*$ of large scale in dynamic environment?
 On the one hand, in a typical DSP, there will be millions of constraints shared by similar number of ads.
 Each of the constraints deserves a $\alpha$, which makes the vector $\valpha$ very large.
 On the other hand, billions of impressions are broadcasted by AdX every day and bid by hundreds of DSPs simultaneously.
-The bidding strategies are interactively adjusted by DSPs and the inventories are dynamically updated by advertisers,
+The bidding strategies are interactively adjusted by DSPs and the inventories are frequently updated by advertisers,
     which makes the bidding landscape unstable.
-Both properties make the optimal $\valpha$ relatively hard to solve.
+Both properties make the $\valpha^*$ hard to solve.
 
 Second, how to construct and index logical ads automatically in massive ads applications, balancing latency and performance?
 It's obvious that both deciding and training processes share the same ad evaluation and maximum determination style,
@@ -934,11 +990,14 @@ At one extreme, each ad is represented by exactly one logical ad, and the conseq
 At the other extreme, all ads are represented by the only logical ad, while the performance might be seriously degenerated.
 A proper compromise combined with efficient indexing tricks will accelerate both processes by orders of magnitude.
 
-Third, how to optimally break ties when they are common and critical in certain applications?
+Third, how to optimally break ties when they are common and critical?
 Take an imaginary senario for example.
-All ads are in P4P mode with budget constraints, while DSP is willing to maximize its profit.
-Besides, these ads share the universal constant CPI and are targeted respectively to overlaped sets of impressions.
+DSP is willing to maximize its revenue in P4P mode.
+There are two identical ads with the same CPP and PPI,
+    but they are targeted to overlaped sets of impressions and subjected to different budget constraints.
 In this circumstance, resolution of impressions and ads is extremely low and ties are very prevalent.
+To tackle the tie breaking problem, we might try randomized soft-max instead of hard-max during ad selection.
+However, the theoretical soundness and practical effectiveness of this tie breaking strategy are to be verified.
 
 \appendix
 
@@ -947,14 +1006,14 @@ In this circumstance, resolution of impressions and ads is extremely low and tie
 Here we give the detailed proof of the strong duality. We first prove that P $\le$ D by dualizing P.
 
 \begin{flalign*}
-    P = & - \min\limits_{\substack{\sx,\sV \\ \agapresourceconstraint \\ \assignmentconstraint \\ \sx \ge 0 }} \{ - \sumij \sx \sV \} \\
-      = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\slambda \ge 0} \{ - \sumij \sx \sV \\
+    P = & - \min\limits_{\substack{\sx,\sV \\ \ammkpresourceconstraint \\ \assignmentconstraint \\ \sx \ge 0 }} \{ - \sumij \sx \sV \} \\
+      = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\sgamma \ge 0} \{ - \sumij \sx \sV \\
         & + \sumk \salpha [\sumij \sx \sW(\sV) - \sB] \\
-        & + \sumi \sbeta (\sumj \sx - 1) + \sumij \slambda(-\sx) \} \} \\
-      = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\slambda \ge 0} \{ - \sumk \salpha \sB - \sumi \sbeta \\
-        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \slambda] \} \} \\
-    \le & - \max\limits_{\salpha,\sbeta,\slambda \ge 0} \{ \min\limits_{\sx,\sV} \{ - \sumk \salpha \sB - \sumi \sbeta \\
-        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \slambda] \} \} \\
+        & + \sumi \sbeta (\sumj \sx - 1) + \sumij \sgamma(-\sx) \} \} \\
+      = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\sgamma \ge 0} \{ - \sumk \salpha \sB - \sumi \sbeta \\
+        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \sgamma] \} \} \\
+    \le & - \max\limits_{\salpha,\sbeta,\sgamma \ge 0} \{ \min\limits_{\sx,\sV} \{ - \sumk \salpha \sB - \sumi \sbeta \\
+        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \sgamma] \} \} \\
       = & - \max\limits_{\substack{ \salpha,\sbeta \ge 0 \\ \scoreconstraint }} \{ -\sumk \salpha \sB - \sumi \sbeta \} \\
       = & \min\limits_{\substack{ \salpha,\sbeta \ge 0 \\ \scoreconstraint }} \{ \sumk \salpha \sB + \sumi \sbeta \} \\
       = & D &&
@@ -963,15 +1022,15 @@ Here we give the detailed proof of the strong duality. We first prove that P $\l
 Next, we prove that D = DD by dualizing DD.
 
 \begin{flalign*}
-    D = & \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\stheta,\seta \ge 0 } \{ \sumk \salpha \sB + \sumi \sbeta \\
+    D = & \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\szeta,\seta \ge 0 } \{ \sumk \salpha \sB + \sumi \sbeta \\
         & + \sumij \sx[\sS(\valpha) - \sbeta] \\
-        & + \sumk \stheta (-\salpha) + \sumi \seta (-\sbeta) \} \} \\
-      = & \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\stheta,\seta \ge 0 } \{ \sumk \salpha (\sB - \stheta) \\
+        & + \sumk \szeta (-\salpha) + \sumi \seta (-\sbeta) \} \} \\
+      = & \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\szeta,\seta \ge 0 } \{ \sumk \salpha (\sB - \szeta) \\
         & + \sumi \sbeta (1 - \sumj \sx - \seta) + \sumij \sx \sS(\valpha) \} \} \\
-      = & \max\limits_{\sx,\stheta,\seta \ge 0 } \{ \min\limits_{\salpha,\sbeta} \{ \sumk \salpha (\sB - \stheta) \\
+      = & \max\limits_{\sx,\szeta,\seta \ge 0 } \{ \min\limits_{\salpha,\sbeta} \{ \sumk \salpha (\sB - \szeta) \\
         & + \sumi \sbeta (1 - \sumj \sx - \seta) + \sumij \sx \sS(\valpha) \} \} \\
-      = & \max\limits_{\substack{\sx,\stheta \ge 0 \\ \assignmentconstraint }} \{ \min\limits_{\salpha} \{
-          \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \\
+      = & \max\limits_{\substack{\sx,\szeta \ge 0 \\ \assignmentconstraint }} \{ \min\limits_{\salpha} \{
+          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \\
       = & DD &&
 \end{flalign*}
 
@@ -979,10 +1038,10 @@ After that, we prove that P = d by dualizing the inner step of P with the outer 
 
 \begin{flalign*}
     P = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          \max\limits_{\substack{ \sV \\ \agapresourceconstraint }} \{
+          \max\limits_{\substack{ \sV \\ \ammkpresourceconstraint }} \{
           \sumij \sx \sV \} \} \\
       = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          - \min\limits_{\substack{ \sV \\ \agapresourceconstraint }} \{
+          - \min\limits_{\substack{ \sV \\ \ammkpresourceconstraint }} \{
           - \sumij \sx \sV \} \} \\
       = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
           - \min\limits_{\sV} \{ \max\limits_{\salpha \ge 0} \{
@@ -1005,18 +1064,18 @@ At last, we prove that d = dd by dualizing the inner step of d with the outer st
 
 \begin{flalign*}
     d = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          \min\limits_{\salpha} \{ \max\limits_{\stheta \ge 0} \{
+          \min\limits_{\salpha} \{ \max\limits_{\szeta \ge 0} \{
           \sumk \salpha \sB + \sumij \sx \sS(\valpha) \\
-        & + \sumk \stheta (-\salpha)\} \} \} \\
+        & + \sumk \szeta (-\salpha)\} \} \} \\
       = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          \min\limits_{\salpha} \{ \max\limits_{\stheta \ge 0} \{
-          \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \} \\
+          \min\limits_{\salpha} \{ \max\limits_{\szeta \ge 0} \{
+          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \} \\
       = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          \max\limits_{\stheta \ge 0} \{ \min\limits_{\salpha} \{
-          \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \} \\
-      = & \max\limits_{\substack{ \sx,\stheta \ge 0 \\ \assignmentconstraint }} \{
+          \max\limits_{\szeta \ge 0} \{ \min\limits_{\salpha} \{
+          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \} \\
+      = & \max\limits_{\substack{ \sx,\szeta \ge 0 \\ \assignmentconstraint }} \{
           \min\limits_{\salpha} \{
-          \sumk \salpha (\sB - \stheta) + \sumij \sx \sS(\valpha) \} \} \\
+          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \\
       = & dd &&
 \end{flalign*}
 
