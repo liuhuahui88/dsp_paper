@@ -8,6 +8,7 @@
 \usepackage{indentfirst}
 \usepackage{graphicx}
 \usepackage{multirow}
+\usepackage{makecell}
 \usepackage{mathrsfs}
 \usepackage{bbm}
 \usepackage[linesnumbered,ruled]{algorithm2e}
@@ -137,7 +138,7 @@ To the best of our knowledge, our solution is the first dual based DSP bidding f
 In recent years, RTB(Real Time Bidding) becomes a popular online advertisement trading method.
 There are three major roles in the market, namely SSP(Supply Side Platform), DSP(Demand Side Platform), and AdX(Ad Exchange).
 SSP controls huge amount of websites and earns money by supplying impressions.
-DSP holds a lot of advertisers and makes profit through fullfilling their demands.
+DSP holds a lot of advertisers and makes profit through fulfilling their demands.
 AdX, an online advertisement exchange, docks SSPs and DSPs and holds auctions.
 
 In a typical scenario, an audience visits one of the SSP's websites, then the AdX is informed and an auction is initiated.
@@ -152,7 +153,7 @@ Finally, the AdX notifies the SSP about the auction result and the SSP serves th
 \caption{Real Time Bidding}
 \end{figure}
 
-There're two popular payment modes for advertisers
+There are two popular payment modes for advertisers
 \begin{enumerate}
 \item \textbf{P4P}(Pay For Performance): the advertiser sets a CPP(Cost Per Performance)
     and pays DSP the CPP times the units of performance delivered by DSP(e.g. 1\$/click*10clicks=10\$).
@@ -199,7 +200,7 @@ First, PPI(Performance Per Impression) is defined as the expected performance of
     and its accurate prediction is of great importance in performance estimation.
 However, PPI prediction is beyond the scope of this document
     and we assume that the PPI is always explicitly provided in the rest of our discussion.
-Second, it is assumed that all advertisers aggree to the same payment mode and performance metric
+Second, it is assumed that all advertisers agree to the same payment mode and performance metric
     and DSP prefers to optimize a pure objective rather than a hybrid one.
 Third, the CPP in P4P mode or CR in P4U mode are set on the ad level,
     i.e. the advertiser is able to set different CPP or CR for his ads.
@@ -212,7 +213,7 @@ At last, the ROI lower bound for advertiser could also be interpreted as the CPP
 \section{Related Works}
 
 \cite{M6D} suggests a linear bidding strategy which, given base price,
-    bids in propotion to the relative quality of impression.
+    bids in proportion to the relative quality of impression.
 However, their method is a heuristic one and lacks theoretical foundations.
 
 Based on calculus of variations, \cite{WeinanZhang2014} suggests a non-linear relationship between optimal bid price and KPIs.
@@ -317,7 +318,7 @@ In another word, the most competitive DSP will bid $x$ for $Impression_i$ with p
 
 To win $Impression_i$, our $BidPrice$ must be higher than $x$, but we will only pay $x$ eventually.
 Then the expected winning probability and bidding cost for our DSP could be defined as follows.
-As our $BidPrice$ goes infinit, we'll win $Impression_i$ with probability 1 and our bidding cost must be the mean of $p_i(x)$.
+As our $BidPrice$ goes infinite, we'll win $Impression_i$ with probability 1 and our bidding cost must be the mean of $p_i(x)$.
 
 \begin{definition}
 $Prob_i(BidPrice)= \int_0^{BidPrice} p_i(x) \mathrm{d} x$
@@ -378,7 +379,7 @@ It's safe to skip them for now and come back later.
 
 \subsection{Objectives and Constraints} \label{ObjectivesAndConstraints}
 
-There're 4 practical objectives as listed in Table \ref{TableObjectives},
+There are 4 practical objectives as listed in Table \ref{TableObjectives},
     i.e. revenue and performance objectives in P4P and P4U modes.
 It's straightforward to encode those objectives into standard form by definition.
 
@@ -403,7 +404,7 @@ It's straightforward to encode those objectives into standard form by definition
 \end{center}
 \end{table*}
 
-There're 6 practical constraints as listed in Table \ref{TableConstraints},
+There are 6 practical constraints as listed in Table \ref{TableConstraints},
     i.e. budget, DSP ROI and advertiser ROI constraints in P4P and P4U modes.
 Constraints like budget could be expressed in standard form naturally.
 Others, though not so obvious at the first glance, could be rewritten into standard form as well.
@@ -414,7 +415,7 @@ By definition, we have
 \frac{\sRevenuePforP}{\sBiddingCost}\ge\sROI
 \end{alignat}
 After multiplying both sides with the denominator,
-    substracting both sides with the nominator,
+    subtracting both sides with the nominator,
     and combining items by $\sx$, we have
 \begin{alignat}{1}
 \sumijx{\{\sROI\sCost-\sCPI\sProb\}}\le0
@@ -514,7 +515,7 @@ If $W(V)$ is convex function of $V$, strong duality of augmented MMKP holds.
 
 \begin{proof}
 Several auxiliary problems are defined in Table \ref{TableAuxiliaryProblems}.
-P is the primal and could be splited into 2 nested steps.
+P is the primal and could be separated into 2 nested steps.
 The inner step, given $\sx$, maximizes objective with $\sV$ as variables.
 The outer step, maximizes objective with $\sx$ as variables.
 
@@ -625,7 +626,7 @@ Ties could be broken by random or heuristics.
 }
 \end{algorithm}
 
-\subsection{Numeric Optimitization}
+\subsection{Numeric Optimization}
 
 Note that, during the execution of the dual base strategy,
     only the $\valpha^*$ is mandatory while the others(i.e. $\sx^*$, $\sV^*$ and $\sbeta^*$) could be recovered with $\valpha^*$,
@@ -690,7 +691,7 @@ Due to the nice property of $\uff$, it's easy to check that,
     $W(bp)$ is indeed convex function of $V(bp)$,
     which immediately justifies the strong duality of DSP problem.
 
-\begin{theorem}
+\begin{theorem} \label{DSPStrongDualityTheorem}
 Strong duality of DSP problem holds.
 \end{theorem}
 
@@ -732,7 +733,7 @@ By disposing of $p_i(x)$ completely from deciding process, it not only simplifie
 }
 \end{algorithm}
 
-\subsection{Numeric Optimitization} \label{DSPNumericOptimization}
+\subsection{Numeric Optimization} \label{DSPNumericOptimization}
 
 The numeric method developed for augmented MMKP is also applicable to DSP problem.
 It's easy to prove that $\frac{d\sbeta(\valpha)}{d\salpha}$ must be
@@ -747,124 +748,80 @@ This optimization method is $p_i(x)$ free and much easier to implement.
 
 \subsection{Methodology}
 
-To eliminate the uncertainty, our strategy is verified through simulation.
-As suggested by \cite{YingCui2011}, $p(x)$ is assumed to be log normal distribution
-    with mean $\mu$ and standarded deviation $\sigma$ as parameters.
-To mock the impressions, several pairs of $p(x)$ and $CPI$ are drawn randomly.
-Three mocked ads are shown in Table \ref{TableMockedAds},
-    based on which four simulated cases are proposed in Table \ref{TableSimulatedCases},
-    three for single ad and one for multiple ads.
+To eliminate the uncertainty, our strategy is verified in P4P and P4U modes through simulation.
+Due to the limited space, we focus on the P4P mode in the rest of Section \ref{Simulation}.
+
+There are two simulation cases, i.e. one for revenue maximization and the other for performance maximization.
+Two mocked ads $Ad_1$ and $Ad_2$ are created with $CPP_1=1$ and $CPP_2=2$.
+Four mocked constraints are listed in Table \ref{TableConstraints}.
+Budget of $Ad_1$ and $Ad_2$ are 20 and 10 respectively.
+The global DSP ROI lower bound is 2, while the global advertiser ROI lower bound is 0.5.
+As suggested by \cite{YingCui2011}, $p(x)$ is assumed to be log normal distribution $p(x;\mu,\sigma)$
+    with mean $\mu$ and standard deviation $\sigma$ as parameters.
+To mock the impressions, 200 tuples <$\mu_i$, $\sigma_i$, $PPI_{i1}$, $PPI_{i2}$> are drawn randomly.
 
 \begin{table}
-\caption{Mocked Ads\label{TableMockedAds}}
-\begin{center}
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\mr{2}{Ad}     & \mr{2}{Mode}  & Objective  & \mc{2}{Constraint} \\
-\cline{3-5}
-               &               & Type               & $k$   & Type \\
-\hline
-$Ad_1$         & P4P           & Profit             & 1     & Budget \\
-\hline
-$Ad_2$         & P4P           & Revenue            & 2     & ROI \\
-\hline
-\mr{2}{$Ad_3$} & \mr{2}{P4U}   & \mr{2}{Commission} & 3     & Budget \\
-\cline{4-5}
-               &               &                    & 4     & Average CPI \\
-\hline
-\end{tabular}
-\end{center}
-\end{table}
-
-\begin{table}
-\caption{Simulated Cases\label{TableSimulatedCases}}
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline
-Case       & Inventory                          & \#Impressions \\
-\hline
-$Case_1$   & $\{Ad_1\}$                         & \mr{3}{5} \\
-\cline{1-2}
-$Case_2$   & $\{Ad_2\}$                         & \\
-\cline{1-2}
-$Case_3$   & $\{Ad_3\}$                         & \\
-\hline
-$Case_4$   & $\{Ad_j|j \in \{1,2,3\}\}$         & 15 \\
-\hline
-\end{tabular}
-\end{center}
-\end{table}
-
-In $Case_1$, $Ad_1$ is in P4P mode with budget constraint, and DSP prefers to maximize its profit.
-In $Case_2$, $Ad_2$ is in P4P mode with ROI constraint, and DSP prefers to maximize its revenue.
-In $Case_3$, $Ad_3$ is in P4U mode with budget and average CPI constraints, and DSP prefers to maximize its commission.
-$Case_4$ is a hybrid case with all above ads in the inventory.
-
-Once the configurations are ready, cases are solved by SGD developed from our theory and brute force MC(Monte Carlo).
-Due to the limited capacity of MC, only 5 impressions are generated for single ad cases and 15 for multiple ads case.
-
-\subsection{Results and Analysis}
-
-In all cases, constraints are satisfied by both SGD and MC, and objective values are shown in Table \ref{TableObjectiveValues}.
-Both algorithms achieve similar primal objective values in the first three cases,
-    while in the last one, however, MC must be far from convergence and is beaten by SGD.
-In addition, the gap between primal and dual objective values proposed by SGD is negligible,
-    as claimed by the strong duality theorem.
-
-\begin{table}
-\caption{Primal and Dual Objective Values\label{TableObjectiveValues}}
+\caption{Mocked Constraints\label{TableConstraints}}
 \begin{center}
 \begin{tabular}{|c|c|c|c|}
 \hline
-\mr{2}{Case} & MC       & \mc{2}{SGD} \\
-\cline{2-4}
-             & Primal   & Primal   & Dual \\
+k   & Type            & Parameter           & Scope   \\
 \hline
-$Case_1$     & 0.7423   & 0.7484   & 0.7484 \\
+1   & Budget          & $Budget^{(k)} = 20$ & $\{Ad_1\}$        \\
 \hline
-$Case_2$     & 3.4519   & 3.4719   & 3.4719 \\
+2   & Budget          & $Budget^{(k)} = 10$ & $\{Ad_2\}$        \\
 \hline
-$Case_3$     & 0.1000   & 0.1000   & 0.1006 \\
+3   & DSP ROI         & $ROI^{(k)} = 2$     & $\{Ad_1, Ad_2\}$  \\
 \hline
-$Case_4$     & 10.7889  & 13.7849  & 13.7897 \\
+4   & Advertiser ROI  & $ROI^{(k)} = 0.5$   & $\{Ad_1, Ad_2\}$  \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-Resource statistics and corresponding $\alpha$ of SGD are shown in Table \ref{TableResourcesAndAlpha}.
-As mentioned earlier, the $\alpha$ serves as so called opportunity price of the resource.
+Once the configurations are ready, $\valpha^*$ are solved by SGD(Section \ref{DSPNumericOptimization}).
+After that, the dual based strategy is applied on the same cases and the consequent statistics are collected.
+
+\subsection{Results and Analysis}
+
+The statistics and $\valpha^*$ are listed in Table \ref{TableStatisticsAndAlpha}.
+In both cases, all resources have non-negative surplus and no constraint is violated.
+In addition, the gap between primal and dual objective values is negligible(Theorem \ref{DSPStrongDualityTheorem}).
+As mentioned earlier, the $\alpha^*$ serves as so called opportunity price of the resource.
 Intuitively speaking, waste of resource with positive surplus shouldn't lead to any opportunity cost.
-As a result, the corresponding $\alpha$ tends to be 0.
+As a result, the corresponding $\alpha^*$ tends to be 0.
 
-\begin{table}
-\caption{Resources and $\valpha$\label{TableResourcesAndAlpha}}
+\begin{table*}
+\caption{Statistics and $\alpha^*$\label{TableStatisticsAndAlpha}}
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
 \hline
-\mr{2}{Case}      & \mr{2}{Ad}     & \mc{4}{Resource}                                     & \mr{2}{$\alpha$} \\
-\cline{3-6}
-                  &                & $k$   & Limit       & Consumption     & Surplus      & \\
+\mr{2}{Case}      & \mr{2}{Description}                          &\mr{2}{Primal} &\mr{2}{Dual}
+                  & \mc{4}{Resource}                                        & \mr{2}{$\alpha^*$} \\
+\cline{5-8}
+                  &&&& $k$   & Limit       & Consumption     & Surplus      & \\
 \hline
-$Case_1$          & $Ad_1$         & 1     & 1.0000      & 1.0000          & 0.0000       & 0.6208 \\
+\mr{4}{$Case_1$}  & \mr{4}{\makecell{Revenue\\Maximization}}     & \mr{4}{2.164} &\mr{4}{2.164} 
+                     & 1     & 20.000      & 0.865           & 19.135       & 0.000 \\
+\cline{5-9}
+                  &&&& 2     & 10.000      & 1.299           & 8.701        & 0.000 \\
+\cline{5-9}
+                  &&&& 3     & 0.000       & 0.000           & 0.000        & 4.749 \\
+\cline{5-9}
+                  &&&& 4     & 0.000       & -0.433          & 0.433        & 0.000 \\
 \hline
-$Case_2$          & $Ad_2$         & 2     & 0.0000      & 0.0000          & 0.0000       & 1.6369 \\
-\hline
-\mr{2}{$Case_3$}  & \mr{2}{$Ad_3$} & 3     & 1.0000      & 1.0000          & 0.0000       & 0.1001 \\
-\cline{3-7}
-                  &                & 4     & 0.0000      & -0.8120         & 0.8120       & 0.0008 \\
-\hline
-\mr{4}{$Case_4$}  & $Ad_1$         & 1     & 1.0000      & 0.9971          & 0.0029       & 0.3723 \\
-\cline{2-7}
-                  & $Ad_2$         & 2     & 0.0000      & -0.0004         & 0.0004       & 1.2480 \\
-\cline{2-7}
-                  & \mr{2}{$Ad_3$} & 3     & 1.0000      & 0.9981          & 0.0019       & 0.0929 \\
-\cline{3-7}
-                  &                & 4     & 0.0000      & -0.1089         & 0.1089       & 0.0273 \\
+\mr{4}{$Case_2$}  & \mr{4}{\makecell{Performance\\Maximization}} & \mr{4}{1.590} & \mr{4}{1.590}
+                     & 1     & 20.000      & 1.100           & 18.900       & 0.000 \\
+\cline{5-9}
+                  &&&& 2     & 10.000      & 0.979           & 9.021        & 0.000 \\
+\cline{5-9}
+                  &&&& 3     & 0.000       & 2.747           & -2.747       & 3.654 \\
+\cline{5-9}
+                  &&&& 4     & 0.000       & -0.550          & 0.550        & 0.000 \\
 \hline
 \end{tabular}
 \end{center}
-\end{table}
+\end{table*}
 
 \section{Application} \label{Application}
 
@@ -872,11 +829,12 @@ $Case_2$          & $Ad_2$         & 2     & 0.0000      & 0.0000          & 0.0
 
 We also deploy our strategy in the DSP platform of Alibaba.
 In our application, advertisers set budgets and pay for clicks, while DSP is willing to maximize revenue under daily global DSP ROI constraint.
-There're so many ads in our inventory that it's impossible to go through each ad before auction deadline.
+There are so many ads in our inventory that it's impossible to go through each ad before auction deadline.
 Although these budgets are quite large totally, they are relatively small on average.
 
 With well calibrated CPP and PPI predictors, the problem could be transformed equivalently into one in P4P mode.
 And to meet the latency requirement, the whole deciding process is decomposed into two stages with so called logical ad.
+
 Logical ad should be seen as proxy of physical ads and binded with specific ad retrieval algorithm.
 In the first stage, DSP is supposed to make decisions among just a few logical ads and respond in time.
 In the second stage, once the chosen logical ad wins the auction, physical ad is lazily retrieved with corresponding algorithm.
@@ -903,7 +861,7 @@ To take full advantage of that, we adopt a simplified version of the $p_i(x)$ fr
 \subsection{Experiment Groups}
 
 We compare our strategy with a variation of linear bidding strategy.
-In \cite{M6D}, it's suguested that $\sbp=\frac{ActualCTR_{ij}}{CTR}Bid$ with $Bid$ set by operation team.
+In \cite{M6D}, it's suggested that $\sbp=\frac{ActualCTR_{ij}}{CTR}Bid$ with $Bid$ set by operation team.
 However, unlike $ActualCTR_{ij}$ which is independent of $\sbp$, $ActualROI_{ij}$ indeed varies with it.
 As a result, we iteratively update $\sbp$ with $\liniter$.
 
@@ -962,7 +920,7 @@ In addition, it usually violates the daily ROI constraint seriously, so it's an 
 
 Compared with the $DB_s$ who claims a linear relationship between bid price and expected revenue,
     the $ORTB$, derived from first price auction assumption, suggests a non-linear one.
-It is biased towards the impressions with low expected revenue and against those with high expected revenue.
+It is biased towards the impressions with low expected revenue and against those with high expected revenue,
     which leads to more impressions and lower averaged quality.
 While the daily ROI constraint is satisfied by both strategies,
     the $DB_s$ earns more revenue than the $ORTB$. As a result, the $DB_s$ is superior theoretically and practically.
@@ -981,7 +939,7 @@ Three problems remain unsolved and deserve further study.
 First, is there a better way to solve $\valpha^*$ of large scale in dynamic environment?
 On the one hand, in a typical DSP, there will be millions of constraints shared by similar number of ads.
 Each of the constraints deserves a $\alpha$, which makes the vector $\valpha$ very large.
-On the other hand, billions of impressions are broadcasted by AdX every day and bid by hundreds of DSPs simultaneously.
+On the other hand, billions of impressions are broadcast by AdX every day and bid by hundreds of DSPs simultaneously.
 The bidding strategies are interactively adjusted by DSPs and the inventories are frequently updated by advertisers,
     which makes the bidding landscape unstable.
 Both properties make the $\valpha^*$ hard to solve.
@@ -989,15 +947,15 @@ Both properties make the $\valpha^*$ hard to solve.
 Second, how to construct and index logical ads automatically in massive ads applications, balancing latency and performance?
 It's obvious that both deciding and training processes share the same ad evaluation and maximum determination style,
     which makes their computational complexities linearly related with the number of candidate logical ads.
-At one extreme, each ad is represented by exactly one logical ad, and the consequent latency is inacceptable.
+At one extreme, each ad is represented by exactly one logical ad, and the consequent latency is unacceptable.
 At the other extreme, all ads are represented by the only logical ad, while the performance might be seriously degenerated.
 A proper compromise combined with efficient indexing tricks will accelerate both processes by orders of magnitude.
 
 Third, how to optimally break ties when they are common and critical?
-Take an imaginary senario for example.
+Take an imaginary scenario for example.
 DSP is willing to maximize its revenue in P4P mode.
 There are two identical ads with the same CPP and PPI,
-    but they are targeted to overlaped sets of impressions and subjected to different budget constraints.
+    but they are targeted to overlapped sets of impressions and subjected to different budget constraints.
 In this circumstance, resolution of impressions and ads is extremely low and ties are very prevalent.
 To tackle the tie breaking problem, we might try randomized soft-max instead of hard-max during ad selection.
 However, the theoretical soundness and practical effectiveness of this tie breaking strategy are to be verified.
