@@ -1,10 +1,19 @@
-\documentclass[sigconf]{acmart}
+\documentclass{article}
+\pdfpagewidth=8.5in
+\pdfpageheight=11in
+
+\usepackage{ijcai18}
+
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage[utf8]{inputenc}
+\usepackage[small]{caption}
 
 \usepackage{booktabs} % For formal tables
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
-\usepackage{geometry}
 \usepackage{indentfirst}
 \usepackage{graphicx}
 \usepackage{multirow}
@@ -14,31 +23,11 @@
 \usepackage[linesnumbered,ruled]{algorithm2e}
 \allowdisplaybreaks
 
-% Copyright
-%\setcopyright{none}
-%\setcopyright{acmcopyright}
-%\setcopyright{acmlicensed}
-\setcopyright{rightsretained}
-%\setcopyright{usgov}
-%\setcopyright{usgovmixed}
-%\setcopyright{cagov}
-%\setcopyright{cagovmixed}
-
-
-% DOI
-\acmDOI{10.475/123_4}
-
-% ISBN
-\acmISBN{123-4567-24-567/08/06}
-
-%Conference
-%\acmConference[WWW'17]{ACM International Conference on Information and Knowledge Management}{November 2017}{Pan Pacific, Singapore}
-%\acmYear{2017}
-%\copyrightyear{2017}
-
-%\acmPrice{15.00}
-
 \DeclareMathOperator*{\argmax}{arg\,max}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{definition}{Definition}[section]
 
 \newcommand{\sumi}{\sum\limits_i}
 \newcommand{\sumj}{\sum\limits_j}
@@ -108,39 +97,59 @@
 \newcommand{\mr}[2]{\multirow{#1}{*}{#2}}
 \newcommand{\mc}[2]{\multicolumn{#1}{c|}{#2}}
 
-\begin{document}
-
 \title{Dual Based DSP Bidding Strategy and its Application}
 
-\author{Huahui Liu}
-\affiliation{%
-  \institution{Alibaba Group}
+\author{
+Huahui Liu$^1$,
+Mingrui Zhu$^1$,
+Xiaonan Meng$^1$,
+Yi Hu$^1$,
+Hao Wang$^1$
+\\ 
+$^1$ Alibaba Group \\
+%
+\{
+huahui.lhh,
+mingrui.zmr,
+xiaonan.mengxn,
+erwin.huy,
+longran.wh
+\}@alibaba-inc.com
 }
-\email{huahui.lhh@alibaba-inc.com}
 
-\author{Mingrui Zhu}
-\affiliation{%
-  \institution{Alibaba Group}
-}
-\email{mingrui.zmr@alibaba-inc.com}
+%\author{Huahui Liu}
+%\affiliation{%
+%  \institution{Alibaba Group}
+%}
+%\email{huahui.lhh@alibaba-inc.com}
+%
+%\author{Mingrui Zhu}
+%\affiliation{%
+%  \institution{Alibaba Group}
+%}
+%\email{mingrui.zmr@alibaba-inc.com}
+%
+%\author{Xiaonan Meng}
+%\affiliation{%
+%  \institution{Alibaba Group}
+%}
+%\email{xiaonan.mengxn@alibaba-inc.com}
+%
+%\author{Yi Hu}
+%\affiliation{%
+%  \institution{Alibaba Group}
+%}
+%\email{erwin.huy@alibaba-inc.com}
+%
+%\author{Hao Wang}
+%\affiliation{%
+%  \institution{Alibaba Group}
+%}
+%\email{longran.wh@alibaba-inc.com}
 
-\author{Xiaonan Meng}
-\affiliation{%
-  \institution{Alibaba Group}
-}
-\email{xiaonan.mengxn@alibaba-inc.com}
+\begin{document}
 
-\author{Yi Hu}
-\affiliation{%
-  \institution{Alibaba Group}
-}
-\email{erwin.huy@alibaba-inc.com}
-
-\author{Hao Wang}
-\affiliation{%
-  \institution{Alibaba Group}
-}
-\email{longran.wh@alibaba-inc.com}
+\maketitle
 
 \begin{abstract}
 In recent years, RTB(Real Time Bidding) becomes a popular online advertisement trading method.
@@ -159,9 +168,7 @@ To the best of our knowledge, our solution is the first dual based DSP bidding f
     generally applicable to the multiple ads scenario with various objectives and constraints.
 \end{abstract}
 
-\keywords{Computational Advertising, Real Time Bidding, Demand Side Platform, Bidding Strategy}
-
-\maketitle
+%\keywords{Computational Advertising, Real Time Bidding, Demand Side Platform, Bidding Strategy}
 
 \section{Introduction} \label{Introduction}
 
@@ -184,21 +191,21 @@ Finally, the AdX notifies the SSP about the auction result and the SSP serves th
 \end{figure}
 
 There are two popular payment modes for advertisers
-\begin{enumerate}
+\begin{itemize}
 \item \textbf{P4P}(Pay For Performance): the advertiser sets a CPP(Cost Per Performance)
     and pays DSP the CPP times the units of performance delivered by DSP(e.g. 1\$/click*10clicks=10\$).
 \item \textbf{P4U}(Pay For Usage): the advertiser sets a CR(Commission Rate)
     and pays DSP the total bidding cost plus the fraction of it as commission(e.g. (1+10\%)*100\$=110\$).
-\end{enumerate}
+\end{itemize}
 
 DSP is interested in optimizing one of the following objectives
-\begin{enumerate}
+\begin{itemize}
 \item \textbf{Revenue}: the total amount of money(e.g. 50\$) earned from advertisers through either payment mode mentioned above.
 \item \textbf{Performance}: the total units of performance(e.g. 20 clicks) delivered to advertisers.
-\end{enumerate}
+\end{itemize}
 
 During the optimization, several constraints must be satisfied
-\begin{enumerate}
+\begin{itemize}
 \item \textbf{Budget Upper Bound}: the maximum amount of money the advertiser is willing to spend in DSP for a certain period of time
   (e.g. 100\$/day).
 \item \textbf{ROI Lower Bound}: the minimum value of ROI(Return On Investment) which is defined as,
@@ -206,17 +213,17 @@ During the optimization, several constraints must be satisfied
   (e.g. DSP ROI is 1.1 when DSP earns 110\$ and pays 100\$) and,
   for advertiser, the performance delivered by DSP over the money spent in DSP
   (e.g. advertiser ROI is 0.8 when advertiser spends 100\$ for 80 clicks).
-\end{enumerate}
+\end{itemize}
 
 It's essential for DSP to find an optimal ad selection and bid price determination strategy
     which maximizes revenue or performance under budget and ROI constraints in P4P or P4U mode.
 We solve this problem by
 
-\begin{enumerate}
+\begin{itemize}
 \item formalizing the DSP problem as a constrained optimization problem(Section \ref{Formalization}),
 \item proposing the augmented MMKP(Multi-choice Multi-dim-ensional Knapsack Problem) with general solution(Section \ref{AugmentedMMKP}),
 \item and demonstrating the DSP problem is a special case of the augmented MMKP and deriving specialized strategy(Section \ref{Solution}).
-\end{enumerate}
+\end{itemize}
 
 Our strategy is verified through simulation(Section \ref{Simulation}) and
     outperforms state-of-the-art strategies in real application(Section \ref{Application}).
@@ -326,12 +333,12 @@ $\sB$ is a resource limit constant
 The above formalization might seem too abstract to capture the details of
     those practical objectives and constraints discussed in Section \ref{Introduction}.
 To make things clearer, we
-\begin{enumerate}
+\begin{itemize}
 \item derive the expected winning probability and bidding cost under second price auction assumption(Section \ref{SecondPriceAuction}),
 \item define the utility function family $\uff$ based on previous derivation(Section \ref{UtilityFunctionFamily}),
 \item and show how to systematically encode those practical objectives and constraints into above formalization
     by setting $B$ and choosing $V(bp)$ and $W(bp)$ from $\uff$(Section \ref{ObjectivesAndConstraints}).
-\end{enumerate}
+\end{itemize}
 
 \subsection{Second Price Auction} \label{SecondPriceAuction}
 
@@ -990,89 +997,89 @@ In this circumstance, resolution of impressions and ads is extremely low and tie
 To tackle the tie breaking problem, we might try randomized soft-max instead of hard-max during ad selection.
 However, the theoretical soundness and practical effectiveness of this tie breaking strategy are to be verified.
 
-\appendix
+%\appendix
+%
+%\section{Strong Duality Proof}
+%
+%Here we give the detailed proof of the strong duality. We first prove that P $\le$ D by dualizing P.
+%
+%\begin{flalign*}
+%    P = & - \min\limits_{\substack{\sx,\sV \\ \ammkpresourceconstraint \\ \assignmentconstraint \\ \sx \ge 0 }} \{ - \sumij \sx \sV \} \\
+%      = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\sgamma \ge 0} \{ - \sumij \sx \sV \\
+%        & + \sumk \salpha [\sumij \sx \sW(\sV) - \sB] \\
+%        & + \sumi \sbeta (\sumj \sx - 1) + \sumij \sgamma(-\sx) \} \} \\
+%      = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\sgamma \ge 0} \{ - \sumk \salpha \sB - \sumi \sbeta \\
+%        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \sgamma] \} \} \\
+%    \le & - \max\limits_{\salpha,\sbeta,\sgamma \ge 0} \{ \min\limits_{\sx,\sV} \{ - \sumk \salpha \sB - \sumi \sbeta \\
+%        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \sgamma] \} \} \\
+%      = & - \max\limits_{\substack{ \salpha,\sbeta \ge 0 \\ \scoreconstraint }} \{ -\sumk \salpha \sB - \sumi \sbeta \} \\
+%      = & \min\limits_{\substack{ \salpha,\sbeta \ge 0 \\ \scoreconstraint }} \{ \sumk \salpha \sB + \sumi \sbeta \} \\
+%      = & D &&
+%\end{flalign*}
+%
+%Next, we prove that D = DD by dualizing DD.
+%
+%\begin{flalign*}
+%    D = & \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\szeta,\seta \ge 0 } \{ \sumk \salpha \sB + \sumi \sbeta \\
+%        & + \sumij \sx[\sS(\valpha) - \sbeta] \\
+%        & + \sumk \szeta (-\salpha) + \sumi \seta (-\sbeta) \} \} \\
+%      = & \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\szeta,\seta \ge 0 } \{ \sumk \salpha (\sB - \szeta) \\
+%        & + \sumi \sbeta (1 - \sumj \sx - \seta) + \sumij \sx \sS(\valpha) \} \} \\
+%      = & \max\limits_{\sx,\szeta,\seta \ge 0 } \{ \min\limits_{\salpha,\sbeta} \{ \sumk \salpha (\sB - \szeta) \\
+%        & + \sumi \sbeta (1 - \sumj \sx - \seta) + \sumij \sx \sS(\valpha) \} \} \\
+%      = & \max\limits_{\substack{\sx,\szeta \ge 0 \\ \assignmentconstraint }} \{ \min\limits_{\salpha} \{
+%          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \\
+%      = & DD &&
+%\end{flalign*}
+%
+%After that, we prove that P = d by dualizing the inner step of P with the outer step unchanged.
+%
+%\begin{flalign*}
+%    P = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+%          \max\limits_{\substack{ \sV \\ \ammkpresourceconstraint }} \{
+%          \sumij \sx \sV \} \} \\
+%      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+%          - \min\limits_{\substack{ \sV \\ \ammkpresourceconstraint }} \{
+%          - \sumij \sx \sV \} \} \\
+%      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+%          - \min\limits_{\sV} \{ \max\limits_{\salpha \ge 0} \{
+%          - \sumij \sx \sV \\
+%        & + \sumk \salpha [\sumij \sx \sW(\sV) - B^{(k)}] \} \} \} \\
+%      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+%          - \min\limits_{\sV} \{ \max\limits_{\salpha \ge 0} \{ - \sumk \salpha B^{(k)} \\
+%        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV)] \} \} \} \\
+%      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+%          - \max\limits_{\salpha \ge 0} \{ \min\limits_{\sV} \{ - \sumk \salpha B^{(k)} \\
+%        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV)] \} \} \} \\
+%      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+%          - \max\limits_{\salpha \ge 0} \{ - \sumk \salpha \sB - \sumij \sx \sS(\valpha) \} \} \\
+%      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+%          \min\limits_{\salpha \ge 0} \{ \sumk \salpha \sB + \sumij \sx \sS(\valpha) \} \} \\
+%      = & d &&
+%\end{flalign*}
+%
+%At last, we prove that d = dd by dualizing the inner step of d with the outer step unchanged.
+%
+%\begin{flalign*}
+%    d = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+%          \min\limits_{\salpha} \{ \max\limits_{\szeta \ge 0} \{
+%          \sumk \salpha \sB + \sumij \sx \sS(\valpha) \\
+%        & + \sumk \szeta (-\salpha)\} \} \} \\
+%      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+%          \min\limits_{\salpha} \{ \max\limits_{\szeta \ge 0} \{
+%          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \} \\
+%      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
+%          \max\limits_{\szeta \ge 0} \{ \min\limits_{\salpha} \{
+%          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \} \\
+%      = & \max\limits_{\substack{ \sx,\szeta \ge 0 \\ \assignmentconstraint }} \{
+%          \min\limits_{\salpha} \{
+%          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \\
+%      = & dd &&
+%\end{flalign*}
+%
+%It's obvious that DD and dd are of the same form, so DD = dd. As a result, we have P = D and strong duality holds.
 
-\section{Strong Duality Proof}
-
-Here we give the detailed proof of the strong duality. We first prove that P $\le$ D by dualizing P.
-
-\begin{flalign*}
-    P = & - \min\limits_{\substack{\sx,\sV \\ \ammkpresourceconstraint \\ \assignmentconstraint \\ \sx \ge 0 }} \{ - \sumij \sx \sV \} \\
-      = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\sgamma \ge 0} \{ - \sumij \sx \sV \\
-        & + \sumk \salpha [\sumij \sx \sW(\sV) - \sB] \\
-        & + \sumi \sbeta (\sumj \sx - 1) + \sumij \sgamma(-\sx) \} \} \\
-      = & - \min\limits_{\sx,\sV} \{ \max\limits_{\salpha,\sbeta,\sgamma \ge 0} \{ - \sumk \salpha \sB - \sumi \sbeta \\
-        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \sgamma] \} \} \\
-    \le & - \max\limits_{\salpha,\sbeta,\sgamma \ge 0} \{ \min\limits_{\sx,\sV} \{ - \sumk \salpha \sB - \sumi \sbeta \\
-        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV) + \sbeta - \sgamma] \} \} \\
-      = & - \max\limits_{\substack{ \salpha,\sbeta \ge 0 \\ \scoreconstraint }} \{ -\sumk \salpha \sB - \sumi \sbeta \} \\
-      = & \min\limits_{\substack{ \salpha,\sbeta \ge 0 \\ \scoreconstraint }} \{ \sumk \salpha \sB + \sumi \sbeta \} \\
-      = & D &&
-\end{flalign*}
-
-Next, we prove that D = DD by dualizing DD.
-
-\begin{flalign*}
-    D = & \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\szeta,\seta \ge 0 } \{ \sumk \salpha \sB + \sumi \sbeta \\
-        & + \sumij \sx[\sS(\valpha) - \sbeta] \\
-        & + \sumk \szeta (-\salpha) + \sumi \seta (-\sbeta) \} \} \\
-      = & \min\limits_{\salpha,\sbeta} \{ \max\limits_{\sx,\szeta,\seta \ge 0 } \{ \sumk \salpha (\sB - \szeta) \\
-        & + \sumi \sbeta (1 - \sumj \sx - \seta) + \sumij \sx \sS(\valpha) \} \} \\
-      = & \max\limits_{\sx,\szeta,\seta \ge 0 } \{ \min\limits_{\salpha,\sbeta} \{ \sumk \salpha (\sB - \szeta) \\
-        & + \sumi \sbeta (1 - \sumj \sx - \seta) + \sumij \sx \sS(\valpha) \} \} \\
-      = & \max\limits_{\substack{\sx,\szeta \ge 0 \\ \assignmentconstraint }} \{ \min\limits_{\salpha} \{
-          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \\
-      = & DD &&
-\end{flalign*}
-
-After that, we prove that P = d by dualizing the inner step of P with the outer step unchanged.
-
-\begin{flalign*}
-    P = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          \max\limits_{\substack{ \sV \\ \ammkpresourceconstraint }} \{
-          \sumij \sx \sV \} \} \\
-      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          - \min\limits_{\substack{ \sV \\ \ammkpresourceconstraint }} \{
-          - \sumij \sx \sV \} \} \\
-      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          - \min\limits_{\sV} \{ \max\limits_{\salpha \ge 0} \{
-          - \sumij \sx \sV \\
-        & + \sumk \salpha [\sumij \sx \sW(\sV) - B^{(k)}] \} \} \} \\
-      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          - \min\limits_{\sV} \{ \max\limits_{\salpha \ge 0} \{ - \sumk \salpha B^{(k)} \\
-        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV)] \} \} \} \\
-      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          - \max\limits_{\salpha \ge 0} \{ \min\limits_{\sV} \{ - \sumk \salpha B^{(k)} \\
-        & + \sumij \sx [-\sV + \sumk \salpha \sW(\sV)] \} \} \} \\
-      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          - \max\limits_{\salpha \ge 0} \{ - \sumk \salpha \sB - \sumij \sx \sS(\valpha) \} \} \\
-      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          \min\limits_{\salpha \ge 0} \{ \sumk \salpha \sB + \sumij \sx \sS(\valpha) \} \} \\
-      = & d &&
-\end{flalign*}
-
-At last, we prove that d = dd by dualizing the inner step of d with the outer step unchanged.
-
-\begin{flalign*}
-    d = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          \min\limits_{\salpha} \{ \max\limits_{\szeta \ge 0} \{
-          \sumk \salpha \sB + \sumij \sx \sS(\valpha) \\
-        & + \sumk \szeta (-\salpha)\} \} \} \\
-      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          \min\limits_{\salpha} \{ \max\limits_{\szeta \ge 0} \{
-          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \} \\
-      = & \max\limits_{\substack{ \sx \ge 0 \\ \assignmentconstraint }} \{
-          \max\limits_{\szeta \ge 0} \{ \min\limits_{\salpha} \{
-          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \} \\
-      = & \max\limits_{\substack{ \sx,\szeta \ge 0 \\ \assignmentconstraint }} \{
-          \min\limits_{\salpha} \{
-          \sumk \salpha (\sB - \szeta) + \sumij \sx \sS(\valpha) \} \} \\
-      = & dd &&
-\end{flalign*}
-
-It's obvious that DD and dd are of the same form, so DD = dd. As a result, we have P = D and strong duality holds.
-
-\bibliographystyle{ACM-Reference-Format}
+\bibliographystyle{named}
 \bibliography{DSP}
 
 \end{document}
