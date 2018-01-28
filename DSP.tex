@@ -572,71 +572,61 @@ This optimization method is $p_i(x)$ free and easier to implement.
 
 \subsection{Methodology}
 
-To eliminate the uncertainty, our strategy is verified in P4P and P4U modes through simulation.
-Due to the limited space, we focus on the P4P mode in the rest of Section \ref{Simulation}.
-
-There are two simulation cases, i.e. one for revenue maximization and the other for performance maximization.
-Two mocked ads $Ad_1$ and $Ad_2$ are created with $CPP_1=1$ and $CPP_2=2$.
-Four mocked constraints are listed in Table \ref{TableConstraints}.
-Budget of $Ad_1$ and $Ad_2$ are 20 and 10 respectively.
-The global DSP ROI lower bound is 2, while the global advertiser ROI lower bound is 0.5.
+To eliminate the uncertainty, our strategy is verified through simulation.
+Two mocked ads $Ad_1$ and $Ad_2$ are created.
+Three mocked constraints are listed in Table \ref{TableConstraints}.
+Budget of $Ad_1$ and $Ad_2$ are 20 and 10 respectively, and the global ROI lower bound is 2.
 As suggested by \cite{YingCui2011}, $p(x)$ is assumed to be log normal distribution $p(x;\mu,\sigma)$
     with mean $\mu$ and standard deviation $\sigma$ as parameters.
-To mock the impressions, 200 tuples <$\mu_i$, $\sigma_i$, $PPI_{i1}$, $PPI_{i2}$> are drawn randomly.
+To mock the impressions, 200 tuples $<\mu_i$, $\sigma_i$, $RPI_{i1}$, $RPI_{i2}>$ are drawn randomly.
 
 \begin{table}
 \caption{Mocked Constraints\label{TableConstraints}}
 \begin{center}
 \begin{tabular}{|c|c|c|c|}
 \hline
-k   & Type            & Parameter           & Scope   \\
+$k$ & Type            & Parameter           & Scope   \\
 \hline
 1   & Budget          & $Budget^{(k)} = 20$ & $\{Ad_1\}$        \\
 \hline
 2   & Budget          & $Budget^{(k)} = 10$ & $\{Ad_2\}$        \\
 \hline
-3   & DSP ROI         & $ROI^{(k)} = 2$     & $\{Ad_1, Ad_2\}$  \\
-\hline
-4   & Advertiser ROI  & $ROI^{(k)} = 0.5$   & $\{Ad_1, Ad_2\}$  \\
+3   & ROI             & $ROI^{(k)} = 2$     & $\{Ad_1, Ad_2\}$  \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-Once the configurations are ready, $\valpha^*$ are solved by SGD(Section \ref{DSPNumericOptimization}).
-After that, the dual based strategy is applied on the same cases and the consequent statistics are collected.
+Once the configuration is ready, $\valpha^*$ are solved by SGD(Section \ref{DSPNumericOptimization}).
+After that, the dual based strategy is applied on the same configuration to recover primal and dual solutions.
+Meanwhile, the consequent resource statistics are collected.
 
 \subsection{Results and Analysis}
 
-The statistics and $\valpha^*$ are listed in Table \ref{TableStatisticsAndAlpha}.
-In both cases, all resources have non-negative surplus and no constraint is violated.
-In addition, the gap between primal and dual objective values is negligible(Theorem \ref{DSPStrongDualityTheorem}).
+Both primal and dual objective values are approximately 2.164 with negligible gap(Theorem \ref{DSPStrongDualityTheorem}).
+All resources have non-negative surplus and no constraint is violated.
+
+The resource statistics and $\valpha^*$ are listed in Table \ref{TableStatisticsAndAlpha}.
 As mentioned earlier, the $\alpha^*$ serves as so called opportunity price of the resource.
 Intuitively speaking, waste of resource with positive surplus shouldn't lead to any opportunity cost.
 As a result, the corresponding $\alpha^*$ tends to be 0.
 
-\begin{table*}
-\caption{Statistics and $\alpha^*$\label{TableStatisticsAndAlpha}}
+\begin{table}
+\caption{Resource Statistics and $\alpha^*$\label{TableStatisticsAndAlpha}}
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|}
 \hline
-\mr{2}{Case}      & \mr{2}{Description}                          &\mr{2}{Primal} &\mr{2}{Dual}
-                  & \mc{4}{Resource}                                        & \mr{2}{$\alpha^*$} \\
-\cline{5-8}
-                  &&&& $k$   & Limit       & Consumption     & Surplus      & \\
+$k$   & Limit    & Consumption & Surplus      & $\alpha^*$ \\
 \hline
-\mr{4}{$Case_1$}  & \mr{4}{\makecell{Revenue\\Maximization}}     & \mr{4}{2.164} &\mr{4}{2.164} 
-                     & 1     & 20.000      & 0.865           & 19.135       & 0.000 \\
-\cline{5-9}
-                  &&&& 2     & 10.000      & 1.299           & 8.701        & 0.000 \\
-\cline{5-9}
-                  &&&& 3     & 0.000       & 0.000           & 0.000        & 4.749 \\
-\cline{5-9}
-                  &&&& 4     & 0.000       & -0.433          & 0.433        & 0.000 \\
+1     & 20.000   & 0.865       & 19.135       & 0.000 \\
+\hline
+2     & 10.000   & 1.299       & 8.701        & 0.000 \\
+\hline
+3     & 0.000    & 0.000       & 0.000        & 4.749 \\
 \hline
 \end{tabular}
 \end{center}
-\end{table*}
+\end{table}
 
 \section{Application} \label{Application}
 
