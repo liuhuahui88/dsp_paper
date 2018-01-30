@@ -144,12 +144,12 @@ To the best of our knowledge, our solution is the first dual based DSP bidding f
 
 In recent years, RTB(Real Time Bidding) becomes a popular online advertisement trading method.
 There are three major roles in the market, namely the SSP(Supply Side Platform), the DSP(Demand Side Platform) and the AdX(Ad Exchange).
-The SSP controls a huge amount of websites and earns money by supplying impressions.
-The DSP holds a lot of advertisers and makes profit through fulfilling their demands.
+The SSP controls a huge amount of websites and earns money by supplying impression opportunities.
+The DSP holds a lot of advertisers and makes profit through fulfilling their marketing demands.
 And the AdX, an online advertisement exchange, docks SSPs and DSPs and holds auctions.
 
 In a typical scenario, an audience visits one of the SSP's websites, then the AdX is informed and an auction is initiated.
-The AdX broadcasts bid request to DSPs and waits for a short time(e.g. 100ms).
+The AdX broadcasts a bid request to DSPs and waits for a short time(e.g. 100ms).
 Each DSP is supposed to evaluate the current opportunity and respond with an ad and the corresponding bid price.
 The AdX gathers bid responses arriving before the deadline and determines the winner and its bidding cost.
 Finally, the AdX notifies the SSP about the auction result and the SSP serves the winner's ad to the audience.
@@ -182,7 +182,7 @@ To the best of our knowledge, our solution is the first dual based DSP bidding f
 These are the main contributions of this document.
 
 Before further discussion, it's worth to mention several points about our problem configuration.
-First, the CPP is set on the ad level, i.e. the advertiser is able to set different CPP for his ads.
+First, the CPP is set on the ad level, i.e. the advertiser is able to set different CPPs for his ads.
 Second, the constraints are set on the ad group level,
     e.g. the budget might be shared by the ads of the same advertiser
     and the DSP might be interested in controlling its global ROI.
@@ -233,9 +233,9 @@ Through modeling the state transition of the auction competition,
 %    distinguish negative training samples without feedbacks eventually from those with delayed ones.
 
 Bidding landscape is studied in \cite{YingCui2011} and log normal is used to model the distribution of the winning price.
-\cite{Wu2015} predicts the win price with the censored data, which utilizes both winning and losing samples in the sealed auction.
-Traffic prediction is discussed in \cite{Traffic2016}.
-Budget pacing is achieved through throttling in \cite{Throttle2015} and bid price adjustment in \cite{Pacing2013}.
+\cite{Wu2015} predicts the win price with the censored data, which utilizes both the winning and the losing samples in the sealed auction.
+%Traffic prediction is discussed in \cite{Traffic2016}.
+Budget pacing is achieved through the throttling in \cite{Throttle2015} and the bid price adjustment in \cite{Pacing2013}.
 
 Our work is mainly inspired by \cite{YeChen2011} in which the compact allocation strategy,
     after modeling problem as a linear programming, is derived from the complementary slackness.
@@ -280,17 +280,17 @@ $\sB$ is a resource limit constant
 The above formalization might seem too abstract to capture the details of
     those practical objective and constraints discussed in Section \ref{Introduction}.
 To make things clearer, we
-    derive the expected winning probability and the bidding cost
+    derive the expected winning probability and the expected bidding cost
         under the second price auction assumption(Section \ref{SecondPriceAuction}),
-    define the utility function family $\uff$ based on previous derivation(Section \ref{UtilityFunctionFamily}),
+    define the utility function family $\uff$ based on them(Section \ref{UtilityFunctionFamily}),
     and show how to systematically encode those objective and constraints into the above formalization
-        by setting $B$ and choosing $V(bp)$ and $W(bp)$ from $\uff$(Section \ref{ObjectivesAndConstraints}).
+        by setting $\sB$ and choosing $\sV(bp)$ and $\sW(bp)$ from $\uff$(Section \ref{ObjectivesAndConstraints}).
 
 \subsection{Second Price Auction} \label{SecondPriceAuction}
 
 Most AdXes adopt the sealed second price auction in which
-    the DSP with the highest bid price wins and pays the second highest bid price.
-For example, three DSPs bid 2\$, 1\$, 3\$ respectively, so the third DSP wins and pays 2\$. 
+    the DSP with the highest bid price wins and pays the amount of the second highest bid price.
+For example, three DSPs bid 2\$, 1\$ and 3\$ respectively, so the third DSP wins and pays 2\$.
 Furthermore, only the winner has access to the second highest bid price
     while the others observe nothing except the fact that they lose.
 
@@ -300,7 +300,7 @@ To model this uncertainty, $p_i(x)$ is defined as the distribution of
 In another word, the most competitive DSP will bid $x$ for the $Impression_i$ with probability $p_i(x) \mathrm{d} x$.
 
 To win the $Impression_i$, our $BidPrice$ must be higher than $x$, but we will only pay $x$ eventually.
-Then the expected winning probability and the bidding cost for our DSP could be defined as follows.
+Then the expected winning probability and the expected bidding cost for our DSP could be defined as follows.
 As our $BidPrice$ goes infinite, we'll win the $Impression_i$ with probability 1 and our bidding cost must be the mean of $p_i(x)$.
 
 \begin{definition}
@@ -311,7 +311,7 @@ $Prob_i(BidPrice)= \int_0^{BidPrice} p_i(x) \mathrm{d} x$
 $Cost_i(BidPrice)= \int_0^{BidPrice} x p_i(x) \mathrm{d} x$
 \end{definition}
 
-It is the non-negativity property of $p_i(x)$ and the integral forms of $Prob_i(BidPrice)$ and $Cost_i(BidPrice)$
+It is the non-negativity of $p_i(x)$ and the integral forms of $Prob_i(BidPrice)$ and $Cost_i(BidPrice)$
     which play a central role in our theory(Section \ref{UtilityFunctionFamily}).
 Except that, we make little, if any, assumption about the distribution family of $p_i(x)$.
 In addition, in some special cases, even explicit modeling of $p_i(x)$ is unnecessary
@@ -346,7 +346,7 @@ Given $\forall g,h \in \uff$ with shared $p(x)$ and $\pcost$, we have $\max\limi
     if and only if $\pprob_g \ge \pprob_f$.
 \end{theorem}
 
-All above theorems are listed here for summarization purpose and will be referenced when actually used.
+All the above theorems are listed here for summarization purpose and will be referenced when actually used.
 It's safe to skip them for now and come back later.
 
 \subsection{Objective and Constraints} \label{ObjectivesAndConstraints}
@@ -413,7 +413,7 @@ $\sS(\valpha) = \max\limits_{bp} \sF(bp; \valpha)$
 $\sF(bp; \valpha)$ serves as sort of score function which is used to estimate
     the utility of distributing the $Impression_i$ to the $Ad_j$ with bid price $bp$.
 It could be interpreted as the compromised gain function in which
-    our original gain $\sV(bp)$ is degenerated by resource consumption $\sW(bp)$ with opportunity price $\salpha$.
+    our original gain $\sV(bp)$ is degenerated by the resource consumption $\sW(bp)$ times the opportunity price $\salpha$.
 Since $\sF(bp; \valpha)$ is the linear combination of $\sV(bp)$ and $\sW(bp)$ from $\uff$ with shared $p_i(x)$,
     it must belong to $\uff$ too with its $\pprob_{\sF}$ and $\pcost_{\sF}$ as follows.
 \begin{alignat}{2}
@@ -422,7 +422,7 @@ Since $\sF(bp; \valpha)$ is the linear combination of $\sV(bp)$ and $\sW(bp)$ fr
 \end{alignat}
 In practice, each ad is usually subjected to very limited number of constraints,
     which makes the calculation of $\pprob_{\sF}$ and $\pcost_{\sF}$ light-weighted.
-What's more, according to Theorem \ref{ArgMaxTheorem}, the $\sbp(\valpha)$ could be evaluated with following equation.
+What's more, according to Theorem \ref{ArgMaxTheorem}, $\sbp(\valpha)$ could be evaluated with the following equation.
 \begin{alignat}{2}
 \sbp(\valpha)= & - \pprob_{\sF} / \pcost_{\sF}
 \end{alignat}
@@ -458,7 +458,8 @@ As a result, according to Theorem \ref{StrongDualityTheorem}, strong duality of 
 \subsection{Dual Based Strategy} \label{DSPDualBasedStrategy}
 
 With strong duality satisfied, several important properties
-    are claimed about the optimal solution of both primal and dual problems(i.e. $\sx^*$, $\sbp^*$, $\valpha^*$ and $\sbeta^*$),
+    are claimed about the optimal solutions of both the primal and the dual problems
+    (i.e. $\sx^*$, $\sbp^*$, $\valpha^*$ and $\sbeta^*$),
     based on which we propose the dual based strategy(Algorithm \ref{DSPAlgo}).
 
 \begin{theorem}
@@ -508,26 +509,29 @@ If $\exists j$ that $\sS(\valpha^*) > 0$, $\sum\limits_j \sx^*$ must be $1$.
 }
 \end{algorithm}
 
-In summary, for each $Impression_i$, every $Ad_j$ should propose its own best score $\sS^*$ achieved by $\sbp^*$.
-The $Impression_i$ should be awarded to the dominating $Ad_{j^*}$ if its best score $S_{ij^*}^*$ is positive and discarded if that is negative.
-Theoretically speaking, while most of which are determined by above corollaries, behaviors remain undefined in two special cases.
+In summary, given $Impression_i$, each $Ad_j$ should propose its own best score $\sS^*$ achieved by $\sbp^*$.
+The $Impression_i$ should be awarded to the dominating $Ad_{j^*}$ if its best score $S_{ij^*}^*$ is positive
+    and be discarded if that is negative.
+Theoretically speaking, while most of which are determined by the above corollaries,
+    behaviors remain undefined in two special cases.
 First, there might be multiple dominating ads with the same best score.
-Second, the best score of dominating ad might be exactly zero.
+Second, the best score of the dominating ad might be exactly zero.
 In practice, however, both cases are probably rare due to the high resolution of impressions and ads, and prone to cause relatively limited damage.
 Ties could be broken by random or heuristics.
 
-As mentioned earlier, $\sbp^*$ could be determined without $p_i(x)$ according to Theorem \ref{ArgMaxTheorem}.
+As mentioned earlier, the $\sbp^*$ could be determined without $p_i(x)$ according to Theorem \ref{ArgMaxTheorem}.
 In certain applications, $\pcost_{\sF}$ is the same for given $i$ and all $j$,
-    then $j^*$ could also be determined independent of $p_i(x)$ according to Theorem \ref{ComparisonTheorem}.
+    then the $j^*$ could also be determined independent of $p_i(x)$ according to Theorem \ref{ComparisonTheorem}.
 By disposing of $p_i(x)$ completely from the deciding process,
     it not only simplifies the computation, but also encourages the $p_i(x)$ free training process.
 
 \subsection{Numeric Optimization} \label{DSPNumericOptimization}
 
 During the execution of the dual base strategy,
-    only the $\valpha^*$ is mandatory while the others(i.e. $\sx^*$, $\sbp^*$ and $\sbeta^*$) could be recovered from $\valpha^*$,
+    only the $\valpha^*$ is mandatory
+    while the others(i.e. $\sx^*$, $\sbp^*$ and $\sbeta^*$) could be recovered from it,
     which makes our strategy storage efficient.
-Next, we propose the numeric method to solve $\valpha^*$.
+Next, we propose the numeric method to solve the $\valpha^*$.
 
 \begin{definition}
 $\sbeta(\valpha) = \max \{ 0, \sS(\valpha) \forall j \}$
@@ -537,17 +541,17 @@ $\sbeta(\valpha) = \max \{ 0, \sS(\valpha) \forall j \}$
 $\sG(\valpha) = \sum\limits_k \frac{\salpha \sB}{N} + \sbeta(\valpha)$
 \end{definition}
 
-By fixing $\valpha$ in the dual problem, $\sbeta^*$ could be calculated as $\sbeta^* = \sbeta(\valpha)$.
+By fixing $\valpha$ in the dual problem, the $\sbeta^*$ could be calculated as $\sbeta^* = \sbeta(\valpha)$.
 Then the dual problem could be rewritten as
 \begin{alignat}{2}
 \min\limits_{\valpha \ge 0} & \sum\limits_i \sG(\valpha)
 \end{alignat}
     and solved by SGD(Stochastic Gradient Descent).
 Due to the convexity of the dual problem, it must converge to the global optimal $\valpha^*$.
-This form also suggests that, the $\valpha^*$ depends on the impression distribution as a whole
-    rather than any concrete sample of it.
+This form also suggests that, the $\valpha^*$ depends on the distribution of the impressions as a whole
+    rather than any specific sample of it.
 Assuming the impressions within a small time window are i.i.d.,
-    the $\valpha^*$ solved with recent impressions could be reused in the near future.
+    the $\valpha^*$ solved with the recent impressions could be reused in the near future.
 
 It's provable that $\frac{\partial\sbeta(\valpha)}{\partial\salpha}$ must be
     either $-\sW(\sbp(\valpha))$ if the best score of the dominating $Ad_j$ is positive or $0$ otherwise.
@@ -564,9 +568,9 @@ This optimization method is $p_i(x)$ free and much easier to implement.
 To eliminate the uncertainty, our strategy is verified through simulation.
 Two mocked ads $Ad_1$ and $Ad_2$ are created.
 Three mocked constraints are listed in Table \ref{TableConstraints}.
-Budget of $Ad_1$ and $Ad_2$ are $20$ and $10$ respectively, and the global ROI lower bound is $2$.
+Budgets of $Ad_1$ and $Ad_2$ are $20$ and $10$ respectively, and the global ROI lower bound is $2$.
 As suggested by \cite{YingCui2011}, $p(x)$ is assumed to be the log normal distribution $p(x;\mu,\sigma)$
-    with mean $\mu$ and standard deviation $\sigma$ as parameters.
+    with the mean $\mu$ and the standard deviation $\sigma$ as parameters.
 To mock the impressions, 200 tuples of $<\mu_i$, $\sigma_i$, $RPI_{i1}$, $RPI_{i2}>$ are drawn randomly.
 
 \begin{table}
@@ -586,16 +590,16 @@ $3$ & ROI             & $ROI^{(k)} = 2$     & $\{Ad_1, Ad_2\}$  \\
 \end{center}
 \end{table}
 
-Once the configuration is ready, $\valpha^*$ are solved by SGD(Section \ref{DSPNumericOptimization}).
+Once the configuration is ready, the $\valpha^*$ is solved by SGD(Section \ref{DSPNumericOptimization}).
 After that, the dual based strategy is applied on the same configuration to recover the primal and the dual solutions.
 Meanwhile, the consequent resource statistics are collected.
 
 \subsection{Results and Analysis}
 
-Both primal and dual objective values are approximately $2.164$ with negligible gap as claimed by Theorem \ref{DSPStrongDualityTheorem}.
+Both the primal and the dual objective values are approximately $2.164$ with negligible gap as claimed by Theorem \ref{DSPStrongDualityTheorem}.
 All resources have non-negative surplus and no constraint is violated.
-The resource statistics and $\valpha^*$ are listed in Table \ref{TableStatisticsAndAlpha}.
-As mentioned earlier, the $\alpha^*$ serves as so called opportunity price of the resource.
+The resource statistics and the $\valpha^*$ are listed in Table \ref{TableStatisticsAndAlpha}.
+As mentioned earlier, the $\alpha^*$ serves as so called the opportunity price of the resource.
 Intuitively speaking, waste of resource with positive surplus shouldn't lead to any opportunity cost.
 As a result, the corresponding $\alpha^*$ tends to be $0$.
 
@@ -623,14 +627,7 @@ $3$     & $0.000$  & $0.000$     & $0.000$      & $4.749$ \\
 We also deploy our strategy in the DSP platform of Alibaba.
 In our application, the advertisers set budgets and pay for clicks, while the DSP is willing to maximize its revenue under the daily global ROI constraint.
 There are so many ads in our inventory that it's impossible to go through each ad before the auction deadline.
-Although these budgets are quite large totally, they are relatively small on average.
-
-The RPI is predicted with well calibrated CPP and PPI predictors.
-And to meet the latency requirement, the whole deciding process is decomposed into two stages with so called logical ad.
-
-Logical ad should be seen as the proxy of the physical ads and is binded with specific ad retrieval algorithm.
-In the first stage, the DSP is supposed to make decisions among just a few logical ads and respond in time.
-In the second stage, once the chosen logical ad wins the auction, the physical ad is lazily retrieved with the corresponding algorithm.
+Although these budgets are relatively small on average, they are quite large totally.
 
 \begin{figure}[!h]
 \centering
@@ -638,6 +635,11 @@ In the second stage, once the chosen logical ad wins the auction, the physical a
 \caption{Real Time Bidding with Logical Ad}
 \end{figure}
 
+The RPI is predicted with well calibrated CPP and PPI predictors.
+And to meet the latency requirement, the whole deciding process is decomposed into two stages with so called the logical ad.
+The logical ad should be seen as the proxy of the physical ads and is binded with specific ad retrieval algorithm.
+In the first stage, the DSP is supposed to make choices among just a few logical ads and respond in time.
+In the second stage, once the chosen logical ad wins the auction, the physical ad is lazily retrieved with the corresponding algorithm.
 Our logical ads are actually based on 4 heterogeneous ad retrieval algorithms whose details are beyond the scope of this document.
 These algorithms are sorted by their historical performance in descending orders and 4 logical ads are constructed correspondingly.
 
@@ -688,7 +690,7 @@ $DB_{m}$ & $\{LogicalAd_j|j \in \{1,2,3,4\}\}$ &                 &              
 \end{table*}
 
 To eliminate the potential bias, the experiment lasts for a whole ordinary week.
-The bidding opportunities are distributed to each group randomly with equal probability.
+The bidding opportunities are distributed to each group randomly with equal probabilities.
 For fairness, the same CPP and PPI predictors are shared by all groups.
 The lower bound of the daily ROI is set to $3.5$.
 
