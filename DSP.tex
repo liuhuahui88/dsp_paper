@@ -161,7 +161,7 @@ Finally, the AdX notifies the SSP about the auction result and the SSP serves th
 \end{figure}
 
 The advertiser should set the CPP(Cost Per Performance) and
-    pay the DSP the CPP times the units of performance delivered by the DSP(e.g. 1\$/click*10clicks=10\$).
+    pay DSP the CPP times the units of performance delivered by the DSP(e.g. 1\$/click*10clicks=10\$).
 DSP is interested in optimizing its own revenue earned from its advertisers.
 During the optimization, both the budget and the ROI(Return On Investment) constraints must be satisfied.
 The budget, set by the advertiser, is the maximum amount of money he is willing to spend in the DSP for a certain period of time (e.g. 100\$/day).
@@ -179,7 +179,7 @@ Our strategy is verified through the simulation(Section \ref{Simulation}) and
 To the best of our knowledge, our solution is the first dual based DSP bidding framework
     that is derived from the strict second price auction assumption and
     generally applicable to multiple ads with various constraints.
-These are the main contributions of this document.
+These are the main contributions of this paper.
 
 Before further discussion, it's worth to mention several points about our problem configuration.
 First, the CPP is set on the ad level, i.e. the advertiser is able to set different CPPs for his ads.
@@ -189,7 +189,7 @@ Second, the constraints are set on the ad group level,
 Third, the PPI(Performance Per Impression) is defined as the expected performance of one impression with certain ad
     and its accurate prediction(\cite{Google2013}, \cite{Facebook2014}, \cite{FFM2016}, \cite{CVR}, \cite{DelayedFeedback})
     is of great importance in performance based advertising.
-However, the PPI prediction is beyond the scope of this document
+However, the PPI prediction is beyond the scope of this paper
     and we assume that the PPI is always explicitly provided in the rest of our discussion.
 At last, given CPP and PPI, the RPI(Revenue Per Impression) is defined as the product of them
     and will be used extensively whenever the underlying factors are irrelevant.
@@ -207,7 +207,7 @@ To find the analytical solution of the optimal bid price,
     the winning rate function must be of specific forms,
     which makes their method inflexible.
 
-Both the win rate and the winning price are estimated in \cite{XiangLi2014}, and the corresponding bidding strategy is provided.
+Both the win rate and the winning price are estimated in \cite{XiangLi2014} and the corresponding bidding strategy is provided.
 However, their strategy doesn't consider any constraints(e.g. budget) which are common in real applications.
 
 While all the above researches consider only one campaign,
@@ -237,8 +237,8 @@ Bidding landscape is studied in \cite{YingCui2011} and log normal is used to mod
 %Traffic prediction is discussed in \cite{Traffic2016}.
 Budget pacing is achieved through the throttling in \cite{Throttle2015} and the bid price adjustment in \cite{Pacing2013}.
 
-Our work is mainly inspired by \cite{YeChen2011} in which the compact allocation strategy,
-    after modeling problem as a linear programming, is derived from the complementary slackness.
+Our work is mainly inspired by \cite{YeChen2011} in which the problem is modeled as a linear programming and
+    the compact allocation strategy is derived from the complementary slackness.
 Sealed second price auction is studied in \cite{SSPA1961}.
 After all, the DSP problem is a sort of online matching problem and \cite{Mehta} is an informative survey of this area.
 
@@ -246,13 +246,13 @@ After all, the DSP problem is a sort of online matching problem and \cite{Mehta}
 
 \subsection{Primal} \label{Primal}
 
-The DSP problem could be formalized into the standard problem as follows.
+The DSP problem could be formalized into the standard problem as follows and the related symbols are explained in Table \ref{TableSymbols}.
 Once we bid the $Impression$ with a $Ad$, it results in the gain $V$ and the resource consumptions $W$, both of which are functions of the $BidPrice$.
 Our total gain should be maximized under the resource constraints $B$ with the $x$ and the $BidPrice$ as variables.
 In addition, each $Impression$ should be distributed to no more than one $Ad$.
 To conquer the computational hardness, the indicator variable $x$ is relaxed from $\{0, 1\}$ to $[0, 1]$.
-Although most kinds of resources(e.g. budget) are sort of private and only accessible to very limited number of $Ad$s in practice,
-    we assume that, without loss of generality, all resources are public and shared by all $Ad$s in this formalization.
+Although most kinds of resources(e.g. budget) are private and only accessible to very limited number of $Ad$s in practice,
+    we assume that, without loss of generality, all resources are public and shared by all $Ad$s.
 
 \begin{alignat}{2}
     \max\limits_{\sx, \sbp} \quad & \sumij \sx \sV(\sbp) \quad    & {} \\
@@ -261,28 +261,33 @@ Although most kinds of resources(e.g. budget) are sort of private and only acces
     \quad                         & \sx \ge 0 \quad               & \forall i,j
 \end{alignat}
 
-$i \inRange{N}$ is the index of the $Impression$
-
-$j \inRange{M}$ is the index of the $Ad$
-
-$k \inRange{K}$ is the index of the $Constraint$
-
-$\sx$ is a relaxed variable, indicating whether the $Impression_i$ should be distributed to the $Ad_j$
-
-$\sbp$, short for $BidPrice_{ij}$, is a variable
-
-$\sV(bp)$ is the gain function of the $BidPrice$ with support $[0, \infty)$
-
-$\sW(bp)$ is the $k$-th resource consumption function of the $BidPrice$ with support $[0, \infty)$
-
-$\sB$ is a resource limit constant
+\begin{table}[h]
+\caption{Symbols and Descriptions\label{TableSymbols}}
+\begin{center}
+\begin{tabular}{c|c}
+\textbf{Symbol} & \textbf{Description} \\
+\hline
+\hline
+$N$             & number of impressions \\
+$M$             & number of ads \\
+$K$             & number of resources \\
+$i$             & index of the $Impression$ \\
+$j$             & index of the $Ad$ \\
+$k$             & index of the $Constraint$ \\
+$\sbp$          & variable short for $BidPrice_{ij}$ \\
+$\sV(bp)$       & gain function \\
+$\sW(bp)$       & $k$-th resource consumption function \\
+$\sB$           & $k$-th resource limit \\
+\end{tabular}
+\end{center}
+\end{table}
 
 The above formalization might seem too abstract to capture the details of
     those practical objective and constraints discussed in Section \ref{Introduction}.
 To make things clearer, we
     derive the expected winning probability and the expected bidding cost
         under the second price auction assumption(Section \ref{SecondPriceAuction}),
-    define the utility function family $\uff$ based on them(Section \ref{UtilityFunctionFamily}),
+    define the utility function family $\uff$ based on them(Section \ref{UtilityFunctionFamily})
     and show how to systematically encode those objective and constraints into the above formalization
         by setting $\sB$ and choosing $\sV(bp)$ and $\sW(bp)$ from $\uff$(Section \ref{ObjectivesAndConstraints}).
 
@@ -347,43 +352,37 @@ Given $\forall g,h \in \uff$ with shared $p(x)$ and $\pcost$, we have $\max\limi
 \end{theorem}
 
 All the above theorems are listed here for summarization purpose and will be referenced when actually used.
-It's safe to skip them for now and come back later.
+It's safe to skip them now and come back later.
 
 \subsection{Objective and Constraints} \label{ObjectivesAndConstraints}
 
-\begin{table}
-\caption{Practical Objective and Constraints\label{TableObjectives}}
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-\mr{2}{Type}       & \mc{2}{$\sV(bp)$ or $\sW(bp)$}    & \mr{2}{$\sB$} \\
-\cline{2-3}
-                   & $\pprob$ & $\pcost$  & \\
-\hline
-Revenue            & $\sCPI$  & 0         & N/A \\
-\hline
-Budget             & $\sCPI$  & 0         & $\sBudget$ \\
-\hline
-ROI                & $-\sCPI$ & $\sROI$   & 0 \\
-\hline
-\end{tabular}
-\end{center}
-\end{table}
 
-The encoding method for practical objective and constraints are listed in Table \ref{TableObjectives}.
+The $\pprob$, $\pcost$ and $\sB$ for practical objective and constraints are listed in Table \ref{TableObjectives}.
 It's straightforward to encode the revenue objective and the budget constraint into the standard form.
 The ROI constraint, though not so obvious at the first glance, could be rewritten into the standard form as well.
 By definition, we have
 \begin{alignat}{1}
 \frac{\sRevenuePforP}{\sBiddingCost}\ge\sROI
 \end{alignat}
-After multiplying both sides with the denominator,
-    subtracting both sides with the nominator,
-    and combining items by $\sx$, we have
+This formula could be transformed equivalently as
 \begin{alignat}{1}
 \sumijx{\{\sROI\sCost-\sCPI\sProb\}}\le0
 \end{alignat}
-It's easy to encode this constraint into the standard form with $\pprob=-\sCPI$, $\pcost=\sROI$ and $\sB=0$.
+Now it's easy to encode the ROI constraint into the standard form with $\pprob=-\sCPI$, $\pcost=\sROI$ and $\sB=0$.
+
+\begin{table}
+\caption{Practical Objective and Constraints\label{TableObjectives}}
+\begin{center}
+\begin{tabular}{c|c|c|c}
+\textbf{Type}      & \boldmath{$\pprob$} & \boldmath{$\pcost$}  & \boldmath{$\sB$} \\
+\hline
+\hline
+Revenue Objective  & $\sCPI$             & $0$                  & - \\
+Budget Constraint  & $\sCPI$             & $0$                  & $\sBudget$ \\
+ROI Constraint     & $-\sCPI$            & $\sROI$              & $0$ \\
+\end{tabular}
+\end{center}
+\end{table}
 
 \section{Solution} \label{Solution}
 
@@ -410,7 +409,7 @@ $\sS(\valpha) = \max\limits_{bp} \sF(bp; \valpha)$
     \quad                               & \sbeta \ge 0 \quad                     & \forall i
 \end{alignat}
 
-$\sF(bp; \valpha)$ serves as sort of score function which is used to estimate
+$\sF(bp; \valpha)$ serves as a scoring function which is used to estimate
     the utility of distributing the $Impression_i$ to the $Ad_j$ with bid price $bp$.
 It could be interpreted as the compromised gain function in which
     our original gain $\sV(bp)$ is degenerated by the resource consumption $\sW(bp)$ times the opportunity price $\salpha$.
@@ -431,7 +430,7 @@ What's more, according to Theorem \ref{ArgMaxTheorem}, $\sbp(\valpha)$ could be 
 
 It is provable that, as long as $\sW(bp)$ is convex function of $\sV(bp)$ for any $i$, $j$ and $k$,
     the strong duality of the standard problem(Section \ref{Primal}) holds.
-The strict proof is tedious and omitted due to the limited space.
+The strict proof is omitted due to the limited space.
 A less rigorous argument is that, since the standard problem could be seen as
     a relaxed MMKP(Multi-choice Multi-dimensional Knapsack Problem) with infinite many sub-choices $bp$,
     it must inherit the strong duality of the relaxed MMKP which is a linear programming.
@@ -516,11 +515,11 @@ Theoretically speaking, while most of which are determined by the above corollar
     behaviors remain undefined in two special cases.
 First, there might be multiple dominating ads with the same best score.
 Second, the best score of the dominating ad might be exactly zero.
-In practice, however, both cases are probably rare due to the high resolution of impressions and ads, and prone to cause relatively limited damage.
-Ties could be broken by random or heuristics.
+In practice, however, both cases are probably rare due to the high resolution of impressions and ads and prone to cause relatively limited damage.
+Ties could be broken randomly or by heuristics.
 
-As mentioned earlier, the $\sbp^*$ could be determined without $p_i(x)$ according to Theorem \ref{ArgMaxTheorem}.
-In certain applications, $\pcost_{\sF}$ is the same for given $i$ and all $j$,
+The $\sbp^*$ could be determined without $p_i(x)$ according to Theorem \ref{ArgMaxTheorem}.
+In certain applications, $\pcost_{\sF}$ is the same for given $i$ and any $j$,
     then the $j^*$ could also be determined independent of $p_i(x)$ according to Theorem \ref{ComparisonTheorem}.
 By disposing of $p_i(x)$ completely from the deciding process,
     it not only simplifies the computation, but also encourages the $p_i(x)$ free training process.
@@ -549,7 +548,7 @@ Then the dual problem could be rewritten as
     and solved by SGD(Stochastic Gradient Descent).
 Due to the convexity of the dual problem, it must converge to the global optimal $\valpha^*$.
 This form also suggests that, the $\valpha^*$ depends on the distribution of the impressions as a whole
-    rather than any specific sample of it.
+    rather than any specific sample.
 Assuming the impressions within a small time window are i.i.d.,
     the $\valpha^*$ solved with the recent impressions could be reused in the near future.
 
@@ -557,8 +556,8 @@ It's provable that $\frac{\partial\sbeta(\valpha)}{\partial\salpha}$ must be
     either $-\sW(\sbp(\valpha))$ if the best score of the dominating $Ad_j$ is positive or $0$ otherwise.
 This optimization method, though generally applicable, requires explicit modeling of $p_i(x)$.
 
-Through executing our strategy in the production environment, the randomized version of $\sW(\sbp(\valpha))$ is revealed
-    and the gradients could be approximated with these feedbacks.
+The randomized version of $\sW(\sbp(\valpha))$ is observable during the execution of our strategy in the production environment.
+Then the gradients could be approximated with these observations.
 This optimization method is $p_i(x)$ free and much easier to implement.
 
 \section{Simulation} \label{Simulation}
@@ -568,7 +567,7 @@ This optimization method is $p_i(x)$ free and much easier to implement.
 To eliminate the uncertainty, our strategy is verified through simulation.
 Two mocked ads $Ad_1$ and $Ad_2$ are created.
 Three mocked constraints are listed in Table \ref{TableConstraints}.
-Budgets of $Ad_1$ and $Ad_2$ are $20$ and $10$ respectively, and the global ROI lower bound is $2$.
+Budgets of $Ad_1$ and $Ad_2$ are $20$ and $10$ respectively and the global ROI lower bound is $2$.
 As suggested by \cite{YingCui2011}, $p(x)$ is assumed to be the log normal distribution $p(x;\mu,\sigma)$
     with the mean $\mu$ and the standard deviation $\sigma$ as parameters.
 To mock the impressions, 200 tuples of $<\mu_i$, $\sigma_i$, $RPI_{i1}$, $RPI_{i2}>$ are drawn randomly.
@@ -576,16 +575,13 @@ To mock the impressions, 200 tuples of $<\mu_i$, $\sigma_i$, $RPI_{i1}$, $RPI_{i
 \begin{table}
 \caption{Mocked Constraints\label{TableConstraints}}
 \begin{center}
-\begin{tabular}{|c|c|c|c|}
+\begin{tabular}{c|c|c|c}
+\boldmath{$k$} & \textbf{Type}   & \textbf{Parameter}   & \textbf{Scope}   \\
 \hline
-$k$ & Type            & Parameter           & Scope   \\
 \hline
-$1$ & Budget          & $Budget^{(k)} = 20$ & $\{Ad_1\}$        \\
-\hline
-$2$ & Budget          & $Budget^{(k)} = 10$ & $\{Ad_2\}$        \\
-\hline
-$3$ & ROI             & $ROI^{(k)} = 2$     & $\{Ad_1, Ad_2\}$  \\
-\hline
+$1$            & Budget          & $Budget^{(k)} = 20$ & $\{Ad_1\}$        \\
+$2$            & Budget          & $Budget^{(k)} = 10$ & $\{Ad_2\}$        \\
+$3$            & ROI             & $ROI^{(k)} = 2$     & $\{Ad_1, Ad_2\}$  \\
 \end{tabular}
 \end{center}
 \end{table}
@@ -603,19 +599,16 @@ As mentioned earlier, the $\alpha^*$ serves as so called the opportunity price o
 Intuitively speaking, waste of resource with positive surplus shouldn't lead to any opportunity cost.
 As a result, the corresponding $\alpha^*$ tends to be $0$.
 
-\begin{table}
+\begin{table}[h]
 \caption{Resource Statistics and $\alpha^*$\label{TableStatisticsAndAlpha}}
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|}
+\begin{tabular}{c|c|c|c|c}
+\boldmath{$k$} & \textbf{Limit} & \textbf{Consumption} & \textbf{Surplus} & \boldmath{$\alpha^*$} \\
 \hline
-$k$     & Limit    & Consumption & Surplus      & $\alpha^*$ \\
 \hline
-$1$     & $20.000$ & $0.865$     & $19.135$     & $0.000$ \\
-\hline
-$2$     & $10.000$ & $1.299$     & $8.701$      & $0.000$ \\
-\hline
-$3$     & $0.000$  & $0.000$     & $0.000$      & $4.749$ \\
-\hline
+$1$            & $20.000$       & $0.865$              & $19.135$         & $0.000$ \\
+$2$            & $10.000$       & $1.299$              & $8.701$          & $0.000$ \\
+$3$            & $0.000$        & $0.000$              & $0.000$          & $4.749$ \\
 \end{tabular}
 \end{center}
 \end{table}
@@ -640,10 +633,10 @@ And to meet the latency requirement, the whole deciding process is decomposed in
 The logical ad should be seen as the proxy of the physical ads and is binded with specific ad retrieval algorithm.
 In the first stage, the DSP is supposed to make choices among just a few logical ads and respond in time.
 In the second stage, once the chosen logical ad wins the auction, the physical ad is lazily retrieved with the corresponding algorithm.
-Our logical ads are actually based on 4 heterogeneous ad retrieval algorithms whose details are beyond the scope of this document.
+Our logical ads are based on 4 heterogeneous ad retrieval algorithms whose details are omitted.
 These algorithms are sorted by their historical performance in descending orders and 4 logical ads are constructed correspondingly.
 
-In summary, our problem could be approximately modeled as, given 4 logical ads with literally unlimited budget,
+In summary, our problem could be approximated as, given 4 logical ads with literally unlimited budget,
     maximizing the revenue under the daily global ROI constraint.
 Since there is only one resource constraint, the superscript $k$ is omitted and
     the ROI is short for the global ROI in the rest of Section \ref{Application}.
@@ -670,36 +663,32 @@ Four experiment groups are shown in Table \ref{TableExperimentGroups}.
 The first three groups are designed to compare different strategies when applied to single logical ad,
     while the last group is used to test our strategy when applied to multiple logical ads.
 
-\begin{table*}
+\begin{table}
 \caption{Experiment Groups\label{TableExperimentGroups}}
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|}
+\begin{tabular}{c|c|c}
+\textbf{Group}    & \textbf{Inventory}         & \textbf{Period} \\
 \hline
-Group    & Inventory                           & $\sbp$          & Iteration         & Period\\
 \hline
-$LIN$    & \mr{3}{$\{LogicalAd_1\}$}           & $\sbp$          & $\liniter$        & 24 hours \\
-\cline{1-1} \cline{3-5}
-$ORTB$   &                                     & $\ortbbp$       & $\ortbiter$       & \mr{3}{10 minutes} \\
-\cline{1-1} \cline{3-4}
-$DB_{s}$ &                                     & \mr{2}{$\dbbp$} & \mr{2}{$\dbiter$} & \\
-\cline{1-2}
-$DB_{m}$ & $\{LogicalAd_j|j \in \{1,2,3,4\}\}$ &                 &                   & \\
-\hline
+$LIN$    & $\{LogicalAd_1\}$                   & 24h \\
+$ORTB$   & $\{LogicalAd_1\}$                   & 10min \\
+$DB_{s}$ & $\{LogicalAd_1\}$                   & 10min \\
+$DB_{m}$ & $\{LogicalAd_j|j \in \{1,2,3,4\}\}$ & 10min \\
 \end{tabular}
 \end{center}
-\end{table*}
+\end{table}
+
+All strategy parameters(i.e. $\sbp$, $\lambda$ and $\alpha$) are randomly initialized and
+    iteratively adjusted with the actual ROI observed in the last period.
+The period is set to 24 hours for the $LIN$ group due to the data sparseness
+    and 10 minutes as to the others for robustness and faster convergence.
+Note that the more frequent update introduces inexplicitly a 10 minutes ROI constraint
+    which is stricter than the daily one and might degenerate the theoretical optimal.
 
 To eliminate the potential bias, the experiment lasts for a whole ordinary week.
 The bidding opportunities are distributed to each group randomly with equal probabilities.
 For fairness, the same CPP and PPI predictors are shared by all groups.
 The lower bound of the daily ROI is set to $3.5$.
-
-The strategy parameters(i.e. $\sbp$, $\lambda$ and $\alpha$) are randomly initialized and
-    periodically adjusted with the actual ROI since the last update.
-The period is set to 24 hours for the $LIN$ group due to the data sparseness
-    and 10 minutes as to the others for robustness and faster convergence.
-Note that the more frequent update introduces inexplicitly a 10 minutes ROI constraint
-    which is stricter than the daily one and might degenerate the theoretical optimal.
 
 \subsection{Results and Analysis}
 
@@ -716,19 +705,22 @@ Suffering from the stale data, the $LIN$ tends to
     earn less revenue than the others and violate the daily ROI constraint seriously,
     which makes it an inferior strategy.
 
-Compared with the $DB_s$ who claims a linear relationship between the bid price and the expected revenue,
-    the $ORTB$, derived from the first price auction assumption, suggests a non-linear one.
-It is biased towards the impressions with low expected revenue and against those with high expected revenue,
-    which leads to more impressions and lower averaged quality.
 While the daily ROI constraint is satisfied by both strategies,
-    the $DB_s$ earns more revenue than the $ORTB$. As a result, the $DB_s$ is superior theoretically and practically.
+    the $DB_s$ earns more revenue than the $ORTB$.
+These two strategies are some how connected and share similar patterns in their bid price determination formulas.
+Compared with the $DB_s$ who claims a linear relationship between the bid price and the expected revenue,
+    the $ORTB$ suggests a non-linear one.
+It prefers the impressions with lower expected revenue to those with higher expected revenue,
+    which leads to more impressions and worse averaged quality.
+The differences between the two strategies root from their different assumptions about the auction mechanism.
+As a result, the $DB_s$ is superior practically and theoretically.
 
 The $DB_m$, as an ensemble of four ad retrieval algorithms,
     achieves the most revenue without violation of the daily ROI constraint and becomes the best strategy.
 
 \section{Conclusions and Future Works}
 
-In this document, we propose a dual based DSP bidding strategy
+In this paper, we propose a dual based DSP bidding strategy
     derived from the second price auction assumption according to the convex optimization theory.
 Our strategy is verified through the simulation and outperforms the state-of-the-art strategies in the DSP of Alibaba.
 It's a theoretically solid and practically effective strategy with simple implementation and various applications.
@@ -745,7 +737,7 @@ Both properties make the $\valpha^*$ hard to solve.
 Second, how to construct and index the logical ads automatically in the massive ads applications, balancing the latency and the performance?
 It's obvious that both the deciding and the training processes share the same ad evaluation and maximum determination style,
     which makes their computational complexities linearly related with the number of candidate logical ads.
-At one extreme, each ad is represented by exactly one logical ad, and the latency is unacceptable.
+At one extreme, each ad is represented by exactly one logical ad and the latency is unacceptable.
 At the other extreme, all ads are represented by the only logical ad, while the performance might be seriously degenerated.
 A proper compromise combined with the efficient indexing tricks will accelerate both processes by orders of magnitude.
 
@@ -754,7 +746,7 @@ Take an imaginary scenario for example.
 There are two identical ads with the same CPP and PPI,
     but they are targeted to the overlapped sets of impressions and subjected to different budget constraints.
 In this circumstance, the resolution of the impressions and the ads is extremely low and the ties are very prevalent.
-To tackle the tie breaking problem, we might try the randomized soft-max instead of the hard-max during the ad selection.
+To tackle the tie breaking problem, we might try the randomized max instead of the deterministic one during the ad selection.
 However, the theoretical soundness and the practical effectiveness of this tie breaking strategy are to be verified.
 
 \clearpage
