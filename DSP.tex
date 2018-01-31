@@ -265,6 +265,7 @@ Although most kinds of resources(e.g. budget) are private and only accessible to
 \caption{Symbols and Descriptions\label{TableSymbols}}
 \begin{center}
 \begin{tabular}{c|c}
+\hline
 \textbf{Symbol} & \textbf{Description} \\
 \hline
 \hline
@@ -278,6 +279,7 @@ $\sbp$          & variable short for $BidPrice_{ij}$ \\
 $\sV(bp)$       & gain function \\
 $\sW(bp)$       & $k$-th resource consumption function \\
 $\sB$           & $k$-th resource limit \\
+\hline
 \end{tabular}
 \end{center}
 \end{table}
@@ -374,12 +376,14 @@ Now it's easy to encode the ROI constraint into the standard form with $\pprob=-
 \caption{Practical Objective and Constraints\label{TableObjectives}}
 \begin{center}
 \begin{tabular}{c|c|c|c}
+\hline
 \textbf{Type}      & \boldmath{$\pprob$} & \boldmath{$\pcost$}  & \boldmath{$\sB$} \\
 \hline
 \hline
 Revenue Objective  & $\sCPI$             & $0$                  & - \\
 Budget Constraint  & $\sCPI$             & $0$                  & $\sBudget$ \\
 ROI Constraint     & $-\sCPI$            & $\sROI$              & $0$ \\
+\hline
 \end{tabular}
 \end{center}
 \end{table}
@@ -565,50 +569,73 @@ This optimization method is $p_i(x)$ free and much easier to implement.
 \subsection{Methodology}
 
 To eliminate the uncertainty, our strategy is verified through simulation.
-Two mocked ads $Ad_1$ and $Ad_2$ are created.
-Three mocked constraints are listed in Table \ref{TableConstraints}.
+2 mocked ads are created and 3 mocked constraints are listed in Table \ref{TableConstraints}.
 Budgets of $Ad_1$ and $Ad_2$ are $20$ and $10$ respectively and the global ROI lower bound is $2$.
-As suggested by \cite{YingCui2011}, $p(x)$ is assumed to be the log normal distribution $p(x;\mu,\sigma)$
-    with the mean $\mu$ and the standard deviation $\sigma$ as parameters.
+As suggested by \cite{YingCui2011}, $p(x)$ is assumed to be the log normal distribution $p(x;\mu,\sigma)$.
 To mock the impressions, 200 tuples of $<\mu_i$, $\sigma_i$, $RPI_{i1}$, $RPI_{i2}>$ are drawn randomly.
+5 different cases are generated using this scheme.
 
 \begin{table}
 \caption{Mocked Constraints\label{TableConstraints}}
 \begin{center}
 \begin{tabular}{c|c|c|c}
-\boldmath{$k$} & \textbf{Type}   & \textbf{Parameter}   & \textbf{Scope}   \\
+\hline
+\boldmath{$k$} & \textbf{Type}   & \textbf{Parameter}  & \textbf{Scope}   \\
 \hline
 \hline
 $1$            & Budget          & $Budget^{(k)} = 20$ & $\{Ad_1\}$        \\
 $2$            & Budget          & $Budget^{(k)} = 10$ & $\{Ad_2\}$        \\
 $3$            & ROI             & $ROI^{(k)} = 2$     & $\{Ad_1, Ad_2\}$  \\
+\hline
 \end{tabular}
 \end{center}
 \end{table}
 
-Once the configuration is ready, the $\valpha^*$ is solved by SGD(Section \ref{DSPNumericOptimization}).
-After that, the dual based strategy is applied on the same configuration to recover the primal and the dual solutions.
-Meanwhile, the consequent resource statistics are collected.
+For each case, the $\valpha^*$ is solved by SGD and used to recover the primal and the dual solutions.
+The baseline is established by instantiating each $\sbp$ with $\{0, 0.1, 0.2, ...\}$ and solving the relaxed MMKP approximation of each case.
 
 \subsection{Results and Analysis}
 
-Both the primal and the dual objective values are approximately $2.164$ with negligible gap as claimed by Theorem \ref{DSPStrongDualityTheorem}.
+The objective values achieved by both methods are listed in Table \ref{TableObjValues}.
+The primal and the dual objective values of our strategy are approximately the same as claimed by Theorem \ref{DSPStrongDualityTheorem}.
 All resources have non-negative surplus and no constraint is violated.
-The resource statistics and the $\valpha^*$ are listed in Table \ref{TableStatisticsAndAlpha}.
-As mentioned earlier, the $\alpha^*$ serves as so called the opportunity price of the resource.
-Intuitively speaking, waste of resource with positive surplus shouldn't lead to any opportunity cost.
+In addition, our strategy consistently outperforms the baseline method.
+
+\begin{table}[h]
+\caption{Objective Values\label{TableObjValues}}
+\begin{center}
+\begin{tabular}{c|c|cc|c}
+\hline
+\textbf{Case} & \textbf{Baseline} & \textbf{Primal} & \textbf{Dual} & \textbf{Improvement} \\
+\hline
+\hline
+$1$           & $1.984$           & $2.164$         & $2.164$       & +$9.07$\% \\
+$2$           & $1.908$           & $1.966$         & $1.966$       & +$3.04$\% \\
+$3$           & $2.327$           & $2.557$         & $2.556$       & +$9.88$\% \\
+$4$           & $2.012$           & $2.208$         & $2.208$       & +$9.74$\% \\
+$5$           & $2.015$           & $2.289$         & $2.289$       & +$13.60$\% \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+The resource statistics and the $\valpha^*$ of the first case are listed in Table \ref{TableStatisticsAndAlpha}.
+As mentioned earlier, the $\alpha^*$ serves as the opportunity price of the resource.
+Intuitively, waste of resource with positive surplus shouldn't lead to any opportunity cost.
 As a result, the corresponding $\alpha^*$ tends to be $0$.
 
 \begin{table}[h]
 \caption{Resource Statistics and $\alpha^*$\label{TableStatisticsAndAlpha}}
 \begin{center}
 \begin{tabular}{c|c|c|c|c}
+\hline
 \boldmath{$k$} & \textbf{Limit} & \textbf{Consumption} & \textbf{Surplus} & \boldmath{$\alpha^*$} \\
 \hline
 \hline
 $1$            & $20.000$       & $0.865$              & $19.135$         & $0.000$ \\
 $2$            & $10.000$       & $1.299$              & $8.701$          & $0.000$ \\
 $3$            & $0.000$        & $0.000$              & $0.000$          & $4.749$ \\
+\hline
 \end{tabular}
 \end{center}
 \end{table}
@@ -634,7 +661,7 @@ The logical ad should be seen as the proxy of the physical ads and is binded wit
 In the first stage, the DSP is supposed to make choices among just a few logical ads and respond in time.
 In the second stage, once the chosen logical ad wins the auction, the physical ad is lazily retrieved with the corresponding algorithm.
 Our logical ads are based on 4 heterogeneous ad retrieval algorithms whose details are omitted.
-These algorithms are sorted by their historical performance in descending orders and 4 logical ads are constructed correspondingly.
+%These algorithms are sorted by their historical performance in descending orders and 4 logical ads are constructed correspondingly.
 
 In summary, our problem could be approximated as, given 4 logical ads with literally unlimited budget,
     maximizing the revenue under the daily global ROI constraint.
@@ -667,6 +694,7 @@ The first three groups are designed to compare different strategies when applied
 \caption{Experiment Groups\label{TableExperimentGroups}}
 \begin{center}
 \begin{tabular}{c|c|c}
+\hline
 \textbf{Group}    & \textbf{Inventory}         & \textbf{Period} \\
 \hline
 \hline
@@ -674,6 +702,7 @@ $LIN$    & $\{LogicalAd_1\}$                   & 24h \\
 $ORTB$   & $\{LogicalAd_1\}$                   & 10min \\
 $DB_{s}$ & $\{LogicalAd_1\}$                   & 10min \\
 $DB_{m}$ & $\{LogicalAd_j|j \in \{1,2,3,4\}\}$ & 10min \\
+\hline
 \end{tabular}
 \end{center}
 \end{table}
